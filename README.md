@@ -5,7 +5,7 @@ Frameworks - Packages - Patterns - Features used
 <ul>
 <li><a href="https://docs.microsoft.com/aspnet/core/" target="_blank">ASP.NET Core</a></li>
 <li><a href="https://docs.microsoft.com/azure/architecture/patterns/cqrs" target="_blank">CQRS</a></li></li>
-<li><a href="https://msdn.microsoft.com/library/ff649690.aspxRepository" target="_blank"> Repository pattern</li>
+<li><a href="https://msdn.microsoft.com/en-us/library/ff649690.aspx" target="_blank"> Repository pattern</li>
 <li><a href="https://docs.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection" target="_black">Dependency Injection</li>
 </ul>
 
