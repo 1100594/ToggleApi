@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using ToggleApi.Commands;
-using ToggleApi.Models;
 using ToggleApi.Queries;
 using ToggleApi.Repository;
 using ToggleApi.Utilities;
@@ -33,11 +31,7 @@ namespace ToggleApi.Controllers
         [HttpGet("{clientId}/{clientVersion}")]
         public IActionResult Get(string clientId, string clientVersion)
         {
-            var fetchTogglesForClientQuery = new FetchTogglesForClient()
-            {
-                ClientId = clientId,
-                ClientVersion = clientVersion
-            };
+            var fetchTogglesForClientQuery = new FetchTogglesForClient(clientId,clientVersion);
 
             var toggles = _queryHandler.Execute(fetchTogglesForClientQuery);
 
@@ -55,6 +49,7 @@ namespace ToggleApi.Controllers
             {
                 return BadRequest(ModelState);
             }
+
             //TODO Check if toggle already exists 
             var createCmd = new CreateToggle(toggleName, toggleValue);
             _commandHandler.Execute(createCmd);
@@ -64,7 +59,9 @@ namespace ToggleApi.Controllers
             _toggleClientParser.ToggleValue = toggleValue;
             if (_toggleClientParser.IsValid())
             {
-                _toggleClientParser.Extract(out ICollection<Client> whitelist, out IDictionary<Client, bool> customValues);
+                var clientPermissions = _toggleClientParser.Extract();
+                var whitelist = clientPermissions.Whitelist;
+                var customValues = clientPermissions.CustomValues;
                 if (whitelist.Any())
                 {
                     var whitelistCmd = new AddToWhitelist(toggleName, whitelist);

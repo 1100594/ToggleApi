@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using ToggleApi.Models;
+using ToggleApi.Utilities;
 using static ToggleApi.Utilities.Utils;
 
 namespace ToggleApi.Repository
@@ -32,7 +33,7 @@ namespace ToggleApi.Repository
         public void Delete(string toggleName)
         {
             var toggleToDelete = GetToggleByName(toggleName);
-            if (toggleToDelete != null)
+            if (!toggleToDelete.IsNull())
             {
                 Toggles.Remove(toggleToDelete);
             }
@@ -46,7 +47,7 @@ namespace ToggleApi.Repository
             //Handle errors
         }
 
-        public void AddToCustomValues(string toggleName, IDictionary<Client, bool> customValues)
+        public void AddToCustomValues(string toggleName, ICollection<Client> customValues)
         {
             var toggle = GetToggleByName(toggleName);
             toggle?.OverrideWith(customValues);

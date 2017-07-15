@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ToggleApi.Commands
+﻿namespace ToggleApi.Commands
 {
     public interface ICommand
     {

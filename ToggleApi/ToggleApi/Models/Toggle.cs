@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ToggleApi.Utilities;
 using static ToggleApi.Utilities.Utils;
 
 namespace ToggleApi.Models
@@ -65,10 +66,14 @@ namespace ToggleApi.Models
             return DefaultValue;
         }
 
-        public void OverrideWith(IDictionary<Client, bool> clients)
+        public void OverrideWith(IEnumerable<Client> clients)
         {
-            var newCustomValues = clients.Where(x => !_customValues.Keys.Contains(x.Key));
-            _customValues = _customValues.Concat(newCustomValues).ToDictionary(x => x.Key, x => x.Value);
+            var newCustomValues = clients.Where(c => !_customValues.Keys.Contains(c)).ToList();
+
+            foreach (var value in newCustomValues)
+            {
+                _customValues.Add(value, !DefaultValue);
+            }
         }
 
         public void ClearOverrideFor(Client client)
@@ -103,7 +108,7 @@ namespace ToggleApi.Models
 
         public bool Equals(Toggle other)
         {
-            return other != null
+            return !other.IsNull()
                 && Name == other.Name;
         }
 
@@ -114,7 +119,7 @@ namespace ToggleApi.Models
 
         public static bool Equals(Toggle x, Toggle y)
         {
-            return x != null && x.Equals(y);
+            return !x.IsNull() && x.Equals(y);
         }
 
 

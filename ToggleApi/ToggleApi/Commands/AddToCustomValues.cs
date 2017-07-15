@@ -6,9 +6,9 @@ namespace ToggleApi.Commands
     public class AddToCustomValues : ICommand
     {
         public string ToggleName { get; }
-        public IDictionary<Client, bool> CustomValues { get; }
+        public ICollection<Client> CustomValues { get; }
 
-        public AddToCustomValues(string toggleName, IDictionary<Client, bool> customValues)
+        public AddToCustomValues(string toggleName, ICollection<Client> customValues)
         {
             ToggleName = toggleName;
             CustomValues = customValues;

@@ -62,6 +62,15 @@ namespace ToggleApi.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid expression for client permissions.
+        /// </summary>
+        public static string InvalidDataErrorMessage {
+            get {
+                return ResourceManager.GetString("InvalidDataErrorMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to *.
         /// </summary>
         public static string Wildcard {

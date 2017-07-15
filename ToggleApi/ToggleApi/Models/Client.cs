@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ToggleApi.Properties;
+using ToggleApi.Utilities;
 
 namespace ToggleApi.Models
 {
@@ -38,13 +39,13 @@ namespace ToggleApi.Models
 
         public  int GetHashCode(Client obj)
         {
-            if (obj?.Id == null || obj.Version == null) return base.GetHashCode();
+            if (obj.IsNull() || obj.Id.IsNull() || obj.Version.IsNull()) return base.GetHashCode();
             return $"{obj.Id}.{obj.Version}".GetHashCode();
         }
 
         public static bool Equals(Client x, Client y)
         {
-            return x != null && x.Equals(y);
+            return !x.IsNull() && x.Equals(y);
         }
 
         private bool IsCompatibleVersion(string otherVersion)
