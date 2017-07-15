@@ -3,10 +3,10 @@ Toggle API
 
 Frameworks - Packages - Patterns - Features used
 <ul>
-<li><a href=https://docs.microsoft.com/aspnet/core/"" target="_blank">ASP.NET Core</a></li>
+<li><a href="https://docs.microsoft.com/aspnet/core/" target="_blank">ASP.NET Core</a></li>
 <li><a href="https://docs.microsoft.com/azure/architecture/patterns/cqrs" target="_blank">CQRS</a></li></li>
 <li><a href="https://msdn.microsoft.com/library/ff649690.aspxRepository" target="_blank"> Repository pattern</li>
-<li><a href="https://docs.microsoft.com/aspnet/core/fundamentals/dependency-injectionDependency" target="_black">Dependency Injection</li>
+<li><a href="https://docs.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection" target="_black">Dependency Injection</li>
 </ul>
 
 <h3>Installation Instructions (1)</h3>
