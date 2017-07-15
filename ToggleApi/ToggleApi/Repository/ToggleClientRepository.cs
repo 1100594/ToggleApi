@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using ToggleApi.Models;
 
 namespace ToggleApi.Repository
@@ -11,6 +9,11 @@ namespace ToggleApi.Repository
         private static ICollection<Toggle> toggles = new List<Toggle>();
 
         public void Delete(string toggleName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IReadOnlyCollection<Toggle> GetTogglesForClient()
         {
             throw new NotImplementedException();
         }

@@ -1,10 +1,11 @@
 ﻿using System;
 using ToggleApi.Models;
 using ToggleApi.Repository;
+using ToggleApi.Utilities;
 
 namespace ToggleApi.Commands
 {
-    public class CommandHandler :
+    public class CommandHandler : 
           ICommandHandler<CreateToggle>
         , ICommandHandler<UpdateToggleValue>
         , ICommandHandler<AddToWhitelist>
@@ -14,31 +15,24 @@ namespace ToggleApi.Commands
         , ICommandHandler<DeleteToggle>
     {
         #region Private Variables
-        private IToggleClientRepository repository;
+        private readonly IToggleClientRepository _repository;
         #endregion
 
         #region Construtors
-        public CommandHandler(IToggleClientRepository repository)
+        public CommandHandler(IToggleClientRepository toogleClientRepository)
         {
-            this.repository = repository ?? throw new ArgumentNullException(nameof(repository));
-        }
-        #endregion
-
-        #region Private & Internal Methods
-        private static void ThrowOnNullArgument(ICommand command)
-        {
-            if (command == null)
-                throw new ArgumentNullException(nameof(command));
+            Utils.ThrowOnNullArgument(toogleClientRepository, nameof(toogleClientRepository));
+            _repository = toogleClientRepository;
         }
         #endregion
 
         #region Public Methods
-        public void Execute(CreateToggle command)
+        public void Execute(CreateToggle createCommand)
         {
-            ThrowOnNullArgument(command);
+            Utils.ThrowOnNullArgument(createCommand, nameof(createCommand));
 
-            var toggle = new Toggle(command.ToggleName, command.ToggleValue);
-            repository.Save(toggle);
+            var toggle = new Toggle(createCommand.ToggleName, createCommand.ToggleValue);
+            _repository.Save(toggle);
         }
 
         public void Execute(UpdateToggleValue command)
@@ -66,11 +60,11 @@ namespace ToggleApi.Commands
             throw new NotImplementedException();
         }
 
-        public void Execute(DeleteToggle command)
+        public void Execute(DeleteToggle deleteToggleCommand)
         {
-            ThrowOnNullArgument(command);
+            Utils.ThrowOnNullArgument(deleteToggleCommand, nameof(deleteToggleCommand));
 
-            repository.Delete(command.ToggleName);
+            _repository.Delete(deleteToggleCommand.ToggleName);
         }
         #endregion
     }
