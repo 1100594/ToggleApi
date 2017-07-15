@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
 using ToggleApi.Commands;
+using ToggleApi.Models;
 using ToggleApi.Repository;
 using ToggleApi.Utilities;
 
@@ -9,12 +11,15 @@ namespace ToggleApi.Controllers
     public class TogglesController : Controller
     {
         private readonly CommandHandler _commandHandler;
+        private readonly IToggleClientParser _toggleClientParser;
 
-        public TogglesController()
+
+        public TogglesController(IToggleClientParser toogleClientParser)
         {
             _commandHandler = new CommandHandler(new ToggleClientRepository());
-
             Utils.ThrowOnNullArgument(_commandHandler, nameof(_commandHandler));
+            _toggleClientParser = toogleClientParser;
+            Utils.ThrowOnNullArgument(_toggleClientParser, nameof(toogleClientParser));
         }
 
         // GET api/toogles/abc/1.0.0.0
@@ -25,14 +30,16 @@ namespace ToggleApi.Controllers
         }
 
         // POST api/toggles/myToggle=true&{v1:*}[^id1:*]
-        [HttpPost("{toggleName}={toggleValue}&{permissions}")]
-        public void Post(string toggleName, bool toggleValue, string permissions)
+        [HttpPost("{toggleName}={toggleValue}&{expression}")]
+        public void Post(string toggleName, bool toggleValue, string expression)
         {
             var createCmd = new CreateToggle(toggleName, toggleValue);
             _commandHandler.Execute(createCmd);
-
-            //Add permissions to list
-
+            _toggleClientParser.Input = expression;
+            if (_toggleClientParser.IsValid())
+            {
+                _toggleClientParser.Extract(out ICollection<Client> whilelist, out IDictionary<Client, bool> customValues);
+            }
         }
 
         // PUT api/toggles/isButtonBlue?toggleValue=false

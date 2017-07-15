@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using ToggleApi.Utilities;
 
 namespace ToggleApi
 {
@@ -27,7 +28,7 @@ namespace ToggleApi
             services.AddMvc();
             //services.AddSingleton<IToggleClientRepository, ToggleClientRepository>();
             //services.AddTransient<ICommandHandler, CommandHandler>();
-        
+            services.AddTransient<IToggleClientParser, ToggleClientParser>();
         }
        
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

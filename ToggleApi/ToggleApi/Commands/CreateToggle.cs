@@ -1,4 +1,6 @@
-﻿namespace ToggleApi.Commands
+﻿using System.Linq.Expressions;
+
+namespace ToggleApi.Commands
 {
     public class CreateToggle : BaseCommand
     {

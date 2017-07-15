@@ -15,7 +15,7 @@ namespace ToggleApi.Models
         public Toggle(string name, bool value)
         {
             Name = name;
-            DefaultValue = value;
+            DefaultValue = value;           
         }
 
         internal void AddToWhitelist(ICollection<Client> clients)
