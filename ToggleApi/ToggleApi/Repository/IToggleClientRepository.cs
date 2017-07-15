@@ -5,9 +5,9 @@ namespace ToggleApi.Repository
 {
     public interface IToggleClientRepository
     {
-        IReadOnlyCollection<Toggle> GetTogglesForClient();
-        Toggle GetToggleByName(string toggleName);
-        void Delete(string toggleName);
+        IEnumerable<Toggle> GetTogglesForClient(string clientId, string clientVersion);
         void Save(Toggle toggle);
+        void Delete(string toggleName);
+
     }
 }

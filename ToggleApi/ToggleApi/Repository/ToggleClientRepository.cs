@@ -6,26 +6,31 @@ namespace ToggleApi.Repository
 {
     public class ToggleClientRepository : IToggleClientRepository
     {
-        private static ICollection<Toggle> toggles = new List<Toggle>();
+        private static readonly ICollection<Toggle> Toggles = new List<Toggle>();
 
         public void Delete(string toggleName)
         {
             throw new NotImplementedException();
         }
 
-        public IReadOnlyCollection<Toggle> GetTogglesForClient()
+        public IEnumerable<Toggle> GetTogglesForClient(string clientId, string clientVersion)
         {
-            throw new NotImplementedException();
-        }
+            var client = new Client(clientId, clientVersion);
 
-        public Toggle GetToggleByName(string toggleName)
-        {
-            throw new NotImplementedException();
+            foreach (var toggle in Toggles)
+            {
+                if (toggle.IsApplicableTo(client))
+                {
+                    //Returns a IEnumerable<Toogle>
+                    yield return toggle;
+                }
+            }
         }
 
         public void Save(Toggle toggle)
         {
-            toggles.Add(toggle);
+            if (!Toggles.Contains(toggle))
+                Toggles.Add(toggle);
         }
     }
 }

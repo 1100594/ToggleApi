@@ -1,7 +1,7 @@
 ﻿using System;
 using ToggleApi.Models;
 using ToggleApi.Repository;
-using ToggleApi.Utilities;
+using static ToggleApi.Utilities.Utils;
 
 namespace ToggleApi.Commands
 {
@@ -21,7 +21,7 @@ namespace ToggleApi.Commands
         #region Construtors
         public CommandHandler(IToggleClientRepository toogleClientRepository)
         {
-            Utils.ThrowOnNullArgument(toogleClientRepository, nameof(toogleClientRepository));
+            ThrowOnNullArgument(toogleClientRepository, nameof(toogleClientRepository));
             _repository = toogleClientRepository;
         }
         #endregion
@@ -29,7 +29,7 @@ namespace ToggleApi.Commands
         #region Public Methods
         public void Execute(CreateToggle createCommand)
         {
-            Utils.ThrowOnNullArgument(createCommand, nameof(createCommand));
+            ThrowOnNullArgument(createCommand, nameof(createCommand));
 
             var toggle = new Toggle(createCommand.ToggleName, createCommand.ToggleValue);
             _repository.Save(toggle);
@@ -62,7 +62,7 @@ namespace ToggleApi.Commands
 
         public void Execute(DeleteToggle deleteToggleCommand)
         {
-            Utils.ThrowOnNullArgument(deleteToggleCommand, nameof(deleteToggleCommand));
+            ThrowOnNullArgument(deleteToggleCommand, nameof(deleteToggleCommand));
 
             _repository.Delete(deleteToggleCommand.ToggleName);
         }

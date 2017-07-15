@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ToggleApi.Utilities;
+using static ToggleApi.Utilities.Utils;
 
 namespace ToggleApi.Models
 {
@@ -15,7 +16,7 @@ namespace ToggleApi.Models
         public Toggle(string name, bool value)
         {
             Name = name;
-            DefaultValue = value;           
+            DefaultValue = value;
         }
 
         internal void AddToWhitelist(ICollection<Client> clients)
@@ -33,17 +34,22 @@ namespace ToggleApi.Models
             return Whitelist.Count > 0;
         }
 
+        private bool IsInCustomValues(Client client)
+        {
+            throw new NotImplementedException();
+        }
+
         public bool IsApplicableTo(Client client)
         {
-            if (!WhitelistExists() || IsInWhitelist(client))
+            if (!WhitelistExists())
                 return true;
 
-            return false;
+            return IsInWhitelist(client) || IsInCustomValues(client);
         }
 
         public bool ValueFor(Client client)
         {
-            Utils.ThrowOnNullArgument(client, nameof(client));
+            ThrowOnNullArgument(client, nameof(client));
 
             if (!IsApplicableTo(client))
                 throw new ArgumentException(
@@ -63,7 +69,7 @@ namespace ToggleApi.Models
 
         public void ClearOverrideFor(Client client)
         {
-            Utils.ThrowOnNullArgument(client, nameof(client));
+            ThrowOnNullArgument(client, nameof(client));
 
             if (CustomValues.ContainsKey(client))
                 CustomValues.Remove(client);
@@ -71,7 +77,7 @@ namespace ToggleApi.Models
 
         public void DettachFrom(Client client)
         {
-            Utils.ThrowOnNullArgument(client, nameof(client));
+            ThrowOnNullArgument(client, nameof(client));
 
             if (Whitelist.Contains(client))
                 Whitelist.Remove(client);

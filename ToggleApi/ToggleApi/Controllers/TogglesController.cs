@@ -1,45 +1,76 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using ToggleApi.Commands;
 using ToggleApi.Models;
+using ToggleApi.Queries;
 using ToggleApi.Repository;
 using ToggleApi.Utilities;
+using static ToggleApi.Utilities.Utils;
 
 namespace ToggleApi.Controllers
 {
     [Route("api/toggles")]
     public class TogglesController : Controller
     {
+       //TODO Inject ICommandHandler and overrides toggleClientRepository argument
         private readonly CommandHandler _commandHandler;
         private readonly IToggleClientParser _toggleClientParser;
+        private readonly IQueryHandler<FetchTogglesForClient, IEnumerable<Toggle>> _getTogglesHandler;
 
-
-        public TogglesController(IToggleClientParser toogleClientParser)
+        public TogglesController(IToggleClientParser toogleClientParser, IQueryHandler<FetchTogglesForClient,
+            IEnumerable<Toggle>> getTogglesHandler, IToggleClientRepository toggleClientRepository)
         {
-            _commandHandler = new CommandHandler(new ToggleClientRepository());
-            Utils.ThrowOnNullArgument(_commandHandler, nameof(_commandHandler));
+            ThrowOnNullArgument(toggleClientRepository, nameof(toggleClientRepository));
+
+            _commandHandler = new CommandHandler(toggleClientRepository);
+            ThrowOnNullArgument(_commandHandler, nameof(_commandHandler));
+
             _toggleClientParser = toogleClientParser;
-            Utils.ThrowOnNullArgument(_toggleClientParser, nameof(toogleClientParser));
+            ThrowOnNullArgument(_toggleClientParser, nameof(toogleClientParser));
+
+            _getTogglesHandler = getTogglesHandler;
+            ThrowOnNullArgument(_getTogglesHandler, nameof(getTogglesHandler));
         }
 
         // GET api/toogles/abc/1.0.0.0
         [HttpGet("{clientId}/{clientVersion}")]
         public IActionResult Get(string clientId, string clientVersion)
         {
-            return Forbid();
+            var fetchTogglesForClientQuery = new FetchTogglesForClient()
+            {
+                ClientId = clientId,
+                ClientVersion = clientVersion
+            };
+
+            var toggles = _getTogglesHandler.Execute(fetchTogglesForClientQuery);
+
+            if (toggles.Any())
+                return Ok(toggles);
+            return NotFound();
         }
 
         // POST api/toggles/myToggle=true&{v1:*}[^id1:*]
         [HttpPost("{toggleName}={toggleValue}&{expression}")]
-        public void Post(string toggleName, bool toggleValue, string expression)
+        public IActionResult Post(string toggleName, bool toggleValue, string expression)
         {
+            //TODO Create a error handler
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var createCmd = new CreateToggle(toggleName, toggleValue);
             _commandHandler.Execute(createCmd);
+
             _toggleClientParser.Input = expression;
             if (_toggleClientParser.IsValid())
             {
                 _toggleClientParser.Extract(out ICollection<Client> whilelist, out IDictionary<Client, bool> customValues);
             }
+
+            return Ok();
         }
 
         // PUT api/toggles/isButtonBlue?toggleValue=false

@@ -10,8 +10,8 @@ namespace ToggleApi.Utilities
 {
     public class ToggleClientParser : IToggleClientParser
     {
-        private const string ValidationPattern = @"\{([A-Za-z\d_-]*:[\d|*]+(\.[\d|*]){0,3}[,]?)+}|\[\^[^]]([,]?[A-Za-z\d_-]*:[\d|*]+(\.[\d|*]){0,3})+]";
-        private const string ExtractionPattern = @"^(\{([^}]*)})*\[(\^)([^]]*)]";
+        //Example: {a-d1_5:11.*}
+        private const string Pattern = @"\{([A-Za-z\d_-]*:[\d|*]+(\.[\d|*]){0,3}[,]?)+}|\[\^([A-Za-z\d_-]*:[\d|*]+(\.[\d|*]){0,3}[,]?)+]";
 
         public string Input { get; set; }
 
@@ -19,7 +19,7 @@ namespace ToggleApi.Utilities
         {
            Utils.ThrowOnNullArgument(Input, nameof(Input));
 
-           return Regex.IsMatch(Input, ValidationPattern);
+           return Regex.IsMatch(Input, Pattern);
         }
 
         public void Extract(out ICollection<Client> whitelist, out IDictionary<Client, bool> customValues)
@@ -30,7 +30,7 @@ namespace ToggleApi.Utilities
             customValues = new Dictionary<Client, bool>();
 
             //TODO try to extract the whitelist and custom value
-            var lists = Regex.Split(Input, ValidationPattern);
+            var lists = Regex.Matches(Input, Pattern);
             //foreach (Match list in lists)
             //{
             //    var service = Regex.Split(list.ToString(), ExtractionPattern);

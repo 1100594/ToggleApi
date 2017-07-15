@@ -2,7 +2,7 @@
 
 namespace ToggleApi.Utilities
 {
-    static class Utils
+    internal static class Utils
     {
         public static void ThrowOnNullArgument(object parameterValue, string parameterName)
         {
