@@ -1,13 +1,12 @@
 Toggle API 
 # Building Toggle API using ASP.NET Core 
 
-<a href="http://wp.me/p3mRWu-18G" taget="_blank">Blog post</a><br/>
 Frameworks - Packages - Patterns - Features used
 <ul>
-<li>ASP.NET Core</li>
-<li>CQRS</li>
-<li>Repository pattern</li>
-<li>Dependency Injection</li>
+<li><a href=https://docs.microsoft.com/aspnet/core/"" target="_blank">ASP.NET Core</a></li>
+<li><a href="https://docs.microsoft.com/azure/architecture/patterns/cqrs" target="_blank">CQRS</a></li></li>
+<li><a href="https://msdn.microsoft.com/library/ff649690.aspxRepository" target="_blank"> Repository pattern</li>
+<li><a href="https://docs.microsoft.com/aspnet/core/fundamentals/dependency-injectionDependency" target="_black">Dependency Injection</li>
 </ul>
 
 <h3>Installation Instructions (1)</h3>
