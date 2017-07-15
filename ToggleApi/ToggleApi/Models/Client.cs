@@ -15,11 +15,6 @@ namespace ToggleApi.Models
             Version = version;
         }
 
-        public override int GetHashCode()
-        {
-            return GetHashCode(this);
-        }
-
         public override bool Equals(object obj)
         {
             return obj is Client && Equals(obj);
@@ -31,22 +26,36 @@ namespace ToggleApi.Models
                 && Id == other.Id
                 && IsCompatibleVersion(other.Version);
         }
-
-        public bool Equals(Client x, Client y)
+        bool IEqualityComparer<Client>.Equals(Client x, Client y)
         {
-            return x != null && x.Equals(y);
+            return Equals(x, y);
         }
 
-        public int GetHashCode(Client obj)
+        public override int GetHashCode()
+        {
+            return GetHashCode(this);
+        }
+
+        public  int GetHashCode(Client obj)
         {
             if (obj?.Id == null || obj.Version == null) return base.GetHashCode();
             return $"{obj.Id}.{obj.Version}".GetHashCode();
         }
 
+        public static bool Equals(Client x, Client y)
+        {
+            return x != null && x.Equals(y);
+        }
 
         private bool IsCompatibleVersion(string otherVersion)
         {
+            //TODO The 1.1.* scenario is missing
             return Version == otherVersion || Version == Resources.Wildcard;
+        }
+
+        public override string ToString()
+        {
+            return $"{Id}:{Version}";
         }
 
     }

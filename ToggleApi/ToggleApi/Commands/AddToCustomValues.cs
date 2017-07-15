@@ -3,7 +3,7 @@ using ToggleApi.Models;
 
 namespace ToggleApi.Commands
 {
-    public class AddToCustomValues : BaseCommand
+    public class AddToCustomValues : ICommand
     {
         public string ToggleName { get; }
         public IDictionary<Client, bool> CustomValues { get; }

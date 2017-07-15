@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using ToggleApi.Models;
+﻿using System.Collections.Generic;
 
 namespace ToggleApi.Queries
 {
-    public class FetchTogglesForClient : IQuery<IEnumerable<Toggle>>
+    public class FetchTogglesForClient : IQuery<IEnumerable<KeyValuePair<string, bool>>>
     {
         public string ClientId { get; set; }
         public string ClientVersion { get; set; }

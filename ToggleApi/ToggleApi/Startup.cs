@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using ToggleApi.Commands;
 using ToggleApi.Models;
 using ToggleApi.Queries;
 using ToggleApi.Repository;
@@ -31,9 +32,9 @@ namespace ToggleApi
             // Add framework services.
             services.AddMvc();
             services.AddSingleton<IToggleClientRepository, ToggleClientRepository>();
-            services.AddSingleton<IQueryHandler<FetchTogglesForClient, IEnumerable<Toggle>>, QueryHandler>();
-            //services.AddTransient<ICommandHandler, CommandHandler>();
-            services.AddTransient<IToggleClientParser, ToggleClientParser>();
+            services.AddSingleton<IQueryHandler, QueryHandler>();
+            services.AddTransient<ICommandHandler, CommandHandler>();
+            services.AddSingleton<IToggleClientParser, ToggleClientParser>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,6 +1,6 @@
 ﻿namespace ToggleApi.Commands
 {
-    public class UpdateToggleValue : BaseCommand
+    public class UpdateToggleValue : ICommand
     {
     }
 }

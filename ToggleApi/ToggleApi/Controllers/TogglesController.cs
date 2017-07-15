@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using ToggleApi.Commands;
@@ -14,24 +13,20 @@ namespace ToggleApi.Controllers
     [Route("api/toggles")]
     public class TogglesController : Controller
     {
-        //TODO Inject ICommandHandler and overrides toggleClientRepository argument
-        private readonly CommandHandler _commandHandler;
+        private readonly ICommandHandler _commandHandler;
         private readonly IToggleClientParser _toggleClientParser;
-        private readonly IQueryHandler<FetchTogglesForClient, IEnumerable<Toggle>> _getTogglesHandler;
+        private readonly IQueryHandler _queryHandler;
 
-        public TogglesController(IToggleClientParser toogleClientParser, IQueryHandler<FetchTogglesForClient,
-            IEnumerable<Toggle>> getTogglesHandler, IToggleClientRepository toggleClientRepository)
+        public TogglesController(IToggleClientParser toogleClientParser, IQueryHandler queryHandler, 
+            IToggleClientRepository toggleClientRepository, ICommandHandler commandHandler)
         {
             ThrowOnNullArgument(toggleClientRepository, nameof(toggleClientRepository));
-
-            _commandHandler = new CommandHandler(toggleClientRepository);
-            ThrowOnNullArgument(_commandHandler, nameof(_commandHandler));
-
+            ThrowOnNullArgument(toogleClientParser, nameof(toogleClientParser));
+            ThrowOnNullArgument(queryHandler, nameof(queryHandler));
+            ThrowOnNullArgument(commandHandler, nameof(commandHandler));
             _toggleClientParser = toogleClientParser;
-            ThrowOnNullArgument(_toggleClientParser, nameof(toogleClientParser));
-
-            _getTogglesHandler = getTogglesHandler;
-            ThrowOnNullArgument(_getTogglesHandler, nameof(getTogglesHandler));
+            _queryHandler = queryHandler;
+            _commandHandler = commandHandler;
         }
 
         // GET api/toogles/abc/1.0.0.0
@@ -44,7 +39,7 @@ namespace ToggleApi.Controllers
                 ClientVersion = clientVersion
             };
 
-            var toggles = _getTogglesHandler.Execute(fetchTogglesForClientQuery);
+            var toggles = _queryHandler.Execute(fetchTogglesForClientQuery);
 
             if (toggles.Any())
                 return Ok(toggles);
@@ -83,7 +78,7 @@ namespace ToggleApi.Controllers
             }
 
 
-         return Ok();
+            return Ok();
         }
 
         // PUT api/toggles/isButtonBlue?toggleValue=false

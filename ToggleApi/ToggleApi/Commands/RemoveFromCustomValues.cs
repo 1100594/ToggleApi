@@ -1,6 +1,6 @@
 ﻿namespace ToggleApi.Commands
 {
-    public class RemoveFromCustomValues : BaseCommand
+    public class RemoveFromCustomValues : ICommand
     {
     }
 }

@@ -3,7 +3,7 @@ using ToggleApi.Models;
 
 namespace ToggleApi.Commands
 {
-    public class AddToWhitelist : BaseCommand
+    public class AddToWhitelist : ICommand
     {
         public string ToggleName { get; }
         public ICollection<Client> Whitelist { get; }

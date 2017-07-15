@@ -1,6 +1,6 @@
 ﻿namespace ToggleApi.Commands
 {
-    public class RemoveFromWhitelist : BaseCommand
+    public class RemoveFromWhitelist : ICommand
     {
     }
 }

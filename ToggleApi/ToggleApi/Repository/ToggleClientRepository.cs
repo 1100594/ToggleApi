@@ -10,7 +10,7 @@ namespace ToggleApi.Repository
         private static readonly ICollection<Toggle> Toggles = new List<Toggle>();
 
 
-        public IEnumerable<Toggle> GetTogglesForClient(string clientId, string clientVersion)
+        public IEnumerable<KeyValuePair<string, bool>> GetTogglesForClient(string clientId, string clientVersion)
         {
             var client = new Client(clientId, clientVersion);
 
@@ -18,8 +18,7 @@ namespace ToggleApi.Repository
             {
                 if (toggle.IsApplicableTo(client))
                 {
-                    //Returns a IEnumerable<Toogle>
-                    yield return toggle;
+                    yield return new KeyValuePair<string, bool>(toggle.Name, toggle.DefaultValue);
                 }
             }
         }
@@ -50,7 +49,7 @@ namespace ToggleApi.Repository
         public void AddToCustomValues(string toggleName, IDictionary<Client, bool> customValues)
         {
             var toggle = GetToggleByName(toggleName);
-            toggle?.OverrideFor(customValues);
+            toggle?.OverrideWith(customValues);
             //Handle errors
         }
 

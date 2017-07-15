@@ -1,32 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ToggleApi.Utilities;
 using static ToggleApi.Utilities.Utils;
 
 namespace ToggleApi.Models
 {
     public class Toggle : IEquatable<Toggle>, IEqualityComparer<Toggle>
     {
+        private List<Client> _whitelist;
+        private Dictionary<Client, bool> _customValues;
+
         public string Name { get; }
         public bool DefaultValue { get; }
-        public IList<Client> Whitelist { get; } = new List<Client>();
-        public IDictionary<Client, bool> CustomValues { get; private set; } = new Dictionary<Client, bool>();
+
+        public IEnumerable<Client> Whitelist => _whitelist.AsReadOnly();
+        public IEnumerable<Client> CustomValues => _customValues.Keys;
 
         public Toggle(string name, bool value)
         {
             Name = name;
             DefaultValue = value;
+            _whitelist = new List<Client>();
+            _customValues = new Dictionary<Client, bool>();
         }
 
         internal void AddToWhitelist(ICollection<Client> clients)
         {
-            Whitelist.AddRange(clients.Except(Whitelist));
+            _whitelist.AddRange(clients.Except(Whitelist));
         }
 
         private bool WhitelistExists()
         {
-            return Whitelist.Count > 0;
+            return _whitelist.Count > 0;
         }
         private bool IsInWhitelist(Client client)
         {
@@ -35,7 +40,7 @@ namespace ToggleApi.Models
 
         private bool IsInCustomValues(Client client)
         {
-            return CustomValues.ContainsKey(client);
+            return _customValues.ContainsKey(client);
         }
 
         public bool IsApplicableTo(Client client)
@@ -55,33 +60,33 @@ namespace ToggleApi.Models
                     $"Client application \"{client.Id}:{client.Version}\" does not " +
                     $"have permission to access toggle \"{Name}\"");
 
-            if (CustomValues.ContainsKey(client))
+            if (_customValues.ContainsKey(client))
                 return !DefaultValue;
             return DefaultValue;
         }
 
-        public void OverrideFor(IDictionary<Client, bool> clients)
+        public void OverrideWith(IDictionary<Client, bool> clients)
         {
-            var newCustomValues = clients.Where(x => !CustomValues.Keys.Contains(x.Key));
-            CustomValues = CustomValues.Concat(newCustomValues).ToDictionary(x => x.Key, x => x.Value);
+            var newCustomValues = clients.Where(x => !_customValues.Keys.Contains(x.Key));
+            _customValues = _customValues.Concat(newCustomValues).ToDictionary(x => x.Key, x => x.Value);
         }
 
         public void ClearOverrideFor(Client client)
         {
             ThrowOnNullArgument(client, nameof(client));
 
-            if (CustomValues.ContainsKey(client))
-                CustomValues.Remove(client);
+            if (_customValues.ContainsKey(client))
+                _customValues.Remove(client);
         }
 
         public void DettachFrom(Client client)
         {
             ThrowOnNullArgument(client, nameof(client));
 
-            if (Whitelist.Contains(client))
-                Whitelist.Remove(client);
+            if (_whitelist.Contains(client))
+                _whitelist.Remove(client);
 
-            if (CustomValues.ContainsKey(client))
+            if (_customValues.ContainsKey(client))
                 ClearOverrideFor(client);
         }
 
@@ -102,15 +107,24 @@ namespace ToggleApi.Models
                 && Name == other.Name;
         }
 
-        public bool Equals(Toggle x, Toggle y)
+        bool IEqualityComparer<Toggle>.Equals(Toggle x, Toggle y)
+        {
+            return Equals(x, y);
+        }
+
+        public static bool Equals(Toggle x, Toggle y)
         {
             return x != null && x.Equals(y);
         }
 
+
         public int GetHashCode(Toggle obj)
         {
-            if (obj?.Name == null) return base.GetHashCode();
-            return obj.Name.GetHashCode();
+            return obj?.Name == null ? base.GetHashCode() : obj.Name.GetHashCode();
+        }
+        public override string ToString()
+        {
+            return $"{Name}:{DefaultValue}";
         }
     }
 }

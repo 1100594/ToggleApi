@@ -1,8 +1,6 @@
-﻿using System.Linq.Expressions;
-
-namespace ToggleApi.Commands
+﻿namespace ToggleApi.Commands
 {
-    public class CreateToggle : BaseCommand
+    public class CreateToggle : ICommand
     {
         public CreateToggle(string toggleName, bool toggleValue)
         {
@@ -10,8 +8,8 @@ namespace ToggleApi.Commands
             ToggleValue = toggleValue;
         }
 
-        public string ToggleName { get; set; }
+        public string ToggleName { get;}
 
-        public bool ToggleValue { get; set; }
+        public bool ToggleValue { get; }
     }
 }

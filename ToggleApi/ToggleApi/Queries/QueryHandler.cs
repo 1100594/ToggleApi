@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
-using ToggleApi.Models;
 using ToggleApi.Repository;
 
 namespace ToggleApi.Queries
 {
-    public class QueryHandler: IQueryHandler<FetchTogglesForClient, IEnumerable<Toggle>>
+    public class QueryHandler: IQueryHandler
     {
         private readonly IToggleClientRepository _repository;
 
@@ -13,7 +12,7 @@ namespace ToggleApi.Queries
             this._repository = repository;
         }
 
-        public IEnumerable<Toggle> Execute(FetchTogglesForClient query)
+        public IEnumerable<KeyValuePair<string, bool>> Execute(FetchTogglesForClient query)
         {
             return _repository.GetTogglesForClient(query.ClientId, query.ClientVersion);
         }

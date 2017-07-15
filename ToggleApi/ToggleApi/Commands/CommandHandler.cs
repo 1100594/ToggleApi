@@ -5,24 +5,18 @@ using static ToggleApi.Utilities.Utils;
 
 namespace ToggleApi.Commands
 {
-    public class CommandHandler : 
-          ICommandHandler<CreateToggle>
-        , ICommandHandler<UpdateToggleValue>
-        , ICommandHandler<AddToWhitelist>
-        , ICommandHandler<RemoveFromWhitelist>
-        , ICommandHandler<AddToCustomValues>
-        , ICommandHandler<RemoveFromCustomValues>
-        , ICommandHandler<DeleteToggle>
+    public class CommandHandler : ICommandHandler
+
     {
         #region Private Variables
         private readonly IToggleClientRepository _repository;
         #endregion
 
         #region Construtors
-        public CommandHandler(IToggleClientRepository toogleClientRepository)
+        public CommandHandler(IToggleClientRepository toggleClientRepository)
         {
-            ThrowOnNullArgument(toogleClientRepository, nameof(toogleClientRepository));
-            _repository = toogleClientRepository;
+            ThrowOnNullArgument(toggleClientRepository, nameof(toggleClientRepository));
+            _repository = toggleClientRepository;
         }
         #endregion
 

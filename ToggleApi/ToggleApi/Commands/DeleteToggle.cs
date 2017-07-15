@@ -1,12 +1,12 @@
 ﻿namespace ToggleApi.Commands
 {
-    public class DeleteToggle : BaseCommand
+    public class DeleteToggle : ICommand
     {
         public DeleteToggle(string toggleName)
         {
             ToggleName = toggleName;
         }
 
-        public string ToggleName { get; set; }
+        public string ToggleName { get; }
     }
 }
