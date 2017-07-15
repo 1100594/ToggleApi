@@ -14,7 +14,7 @@ namespace ToggleApi.Controllers
     [Route("api/toggles")]
     public class TogglesController : Controller
     {
-       //TODO Inject ICommandHandler and overrides toggleClientRepository argument
+        //TODO Inject ICommandHandler and overrides toggleClientRepository argument
         private readonly CommandHandler _commandHandler;
         private readonly IToggleClientParser _toggleClientParser;
         private readonly IQueryHandler<FetchTogglesForClient, IEnumerable<Toggle>> _getTogglesHandler;
@@ -60,17 +60,30 @@ namespace ToggleApi.Controllers
             {
                 return BadRequest(ModelState);
             }
-
+            //TODO Check if toggle already exists 
             var createCmd = new CreateToggle(toggleName, toggleValue);
             _commandHandler.Execute(createCmd);
 
+            //TODO Put this inside logic inside a method?
             _toggleClientParser.Input = expression;
+            _toggleClientParser.ToggleValue = toggleValue;
             if (_toggleClientParser.IsValid())
             {
-                _toggleClientParser.Extract(out ICollection<Client> whilelist, out IDictionary<Client, bool> customValues);
+                _toggleClientParser.Extract(out ICollection<Client> whitelist, out IDictionary<Client, bool> customValues);
+                if (whitelist.Any())
+                {
+                    var whitelistCmd = new AddToWhitelist(toggleName, whitelist);
+                    _commandHandler.Execute(whitelistCmd);
+                }
+                if (customValues.Any())
+                {
+                    var customValuesCmd = new AddToCustomValues(toggleName, customValues);
+                    _commandHandler.Execute(customValuesCmd);
+                }
             }
 
-            return Ok();
+
+         return Ok();
         }
 
         // PUT api/toggles/isButtonBlue?toggleValue=false

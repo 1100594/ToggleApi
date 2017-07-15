@@ -40,9 +40,15 @@ namespace ToggleApi.Commands
             throw new NotImplementedException();
         }
 
-        public void Execute(AddToWhitelist command)
+        public void Execute(AddToWhitelist addWhitelistCommand)
         {
-            throw new NotImplementedException();
+            ThrowOnNullArgument(addWhitelistCommand, nameof(addWhitelistCommand));
+            _repository.AddToWhiteList(addWhitelistCommand.ToggleName, addWhitelistCommand.Whitelist);
+        }
+        public void Execute(AddToCustomValues customValuesCommand)
+        {
+            ThrowOnNullArgument(customValuesCommand, nameof(customValuesCommand));
+            _repository.AddToCustomValues(customValuesCommand.ToggleName, customValuesCommand.CustomValues);
         }
 
         public void Execute(RemoveFromWhitelist command)
@@ -50,10 +56,6 @@ namespace ToggleApi.Commands
             throw new NotImplementedException();
         }
 
-        public void Execute(AddToCustomValues command)
-        {
-            throw new NotImplementedException();
-        }
 
         public void Execute(RemoveFromCustomValues command)
         {

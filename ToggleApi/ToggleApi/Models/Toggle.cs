@@ -24,19 +24,18 @@ namespace ToggleApi.Models
             Whitelist.AddRange(clients.Except(Whitelist));
         }
 
+        private bool WhitelistExists()
+        {
+            return Whitelist.Count > 0;
+        }
         private bool IsInWhitelist(Client client)
         {
             return Whitelist.Contains(client);
         }
 
-        private bool WhitelistExists()
-        {
-            return Whitelist.Count > 0;
-        }
-
         private bool IsInCustomValues(Client client)
         {
-            throw new NotImplementedException();
+            return CustomValues.ContainsKey(client);
         }
 
         public bool IsApplicableTo(Client client)
