@@ -8,19 +8,14 @@ namespace ToggleApi.Commands
     public class CommandHandler : ICommandHandler
 
     {
-        #region Private Variables
         private readonly IToggleClientRepository _repository;
-        #endregion
 
-        #region Construtors
         public CommandHandler(IToggleClientRepository toggleClientRepository)
         {
             ThrowOnNullArgument(toggleClientRepository, nameof(toggleClientRepository));
             _repository = toggleClientRepository;
         }
-        #endregion
-
-        #region Public Methods
+       
         public void Execute(CreateToggle createCommand)
         {
             ThrowOnNullArgument(createCommand, nameof(createCommand));
@@ -29,9 +24,10 @@ namespace ToggleApi.Commands
             _repository.Save(toggle);
         }
 
-        public void Execute(UpdateToggleValue command)
+        public void Execute(UpdateToggleValue updatecommand)
         {
-            throw new NotImplementedException();
+            ThrowOnNullArgument(updatecommand, nameof(updatecommand));
+            _repository.UpdateToggleValue(updatecommand.ToggleName, updatecommand.ToggleValue);
         }
 
         public void Execute(AddToWhitelist addWhitelistCommand)
@@ -62,6 +58,5 @@ namespace ToggleApi.Commands
 
             _repository.Delete(deleteToggleCommand.ToggleName);
         }
-        #endregion
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ToggleApi.Models;
 using ToggleApi.Utilities;
@@ -26,37 +27,58 @@ namespace ToggleApi.Repository
 
         public void Save(Toggle toggle)
         {
-            if (!Toggles.Contains(toggle))
-                Toggles.Add(toggle);
-            //Handle error 
-        }
-        public void Delete(string toggleName)
-        {
-            var toggleToDelete = GetToggleByName(toggleName);
-            if (!toggleToDelete.IsNull())
+            //TODO Review exceptions
+            if (Toggles.Contains(toggle))
             {
-                Toggles.Remove(toggleToDelete);
+                throw new ArgumentException($"The requested {toggle.Name} already exists");
             }
-            //Handle error
+            Toggles.Add(toggle);
         }
 
         public void AddToWhiteList(string toggleName, ICollection<Client> whitelist)
         {
             var toggle = GetToggleByName(toggleName);
-            toggle?.AddToWhitelist(whitelist);
-            //Handle errors
+            if (toggle.IsNull())
+            {
+                throw new ArgumentException($"The requested {toggleName} client does not exists");
+            }
+            toggle.AddToWhitelist(whitelist);
         }
 
         public void AddToCustomValues(string toggleName, ICollection<Client> customValues)
         {
             var toggle = GetToggleByName(toggleName);
-            toggle?.OverrideWith(customValues);
-            //Handle errors
+            if (toggle.IsNull())
+            {
+                throw new ArgumentException($"The requested {toggleName} client does not exists");
+            }
+            toggle.OverrideWith(customValues);
+        }
+        public void Delete(string toggleName)
+        {
+            var toggleToDelete = GetToggleByName(toggleName);
+            if (toggleToDelete.IsNull())
+            {
+                throw new ArgumentException($"The requested {toggleName} client does not exists");
+            }
+            Toggles.Remove(toggleToDelete);
         }
 
-        private Toggle GetToggleByName(string toggleName)
+        public void UpdateToggleValue(string toggleName, bool toogleValue)
         {
-            ThrowOnNullArgument(toggleName, toggleName);
+            var toggleToUpdate = GetToggleByName(toggleName);
+            if (toggleToUpdate.IsNull())
+            {
+                throw new ArgumentException($"The requested {toggleName} client does not exists");
+            }
+            //TODO review this read only props
+            Toggles.Add(new Toggle(toggleToUpdate.Name, toogleValue));
+            Toggles.Remove(toggleToUpdate);
+        }
+
+        public Toggle GetToggleByName(string toggleName)
+        {
+            ThrowOnNullArgument(toggleName);
             return Toggles.FirstOrDefault(t => t.Name.Equals(toggleName));
         }
     }

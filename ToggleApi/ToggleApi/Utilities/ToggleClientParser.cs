@@ -18,9 +18,6 @@ namespace ToggleApi.Utilities
         private bool IsValidInput => IsValid();
         public string Input { get; set; }
 
-        //TODO: Review this 
-        public bool ToggleValue { get; set; }
-
         public bool IsValid()
         {
             ThrowOnNullArgument(Input, nameof(Input));
@@ -31,7 +28,6 @@ namespace ToggleApi.Utilities
         public IClientPermissions Extract()
         {
             ThrowOnNullArgument(Input, nameof(Input));
-            ThrowOnNullArgument(ToggleValue, nameof(ToggleValue));
 
             if (!IsValidInput)
             {

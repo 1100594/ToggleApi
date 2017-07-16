@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using ToggleApi.Models;
 using ToggleApi.Repository;
 
 namespace ToggleApi.Queries
@@ -15,6 +16,11 @@ namespace ToggleApi.Queries
         public IEnumerable<KeyValuePair<string, bool>> Execute(FetchTogglesForClient query)
         {
             return _repository.GetTogglesForClient(query.ClientId, query.ClientVersion);
+        }
+
+        public Toggle Execute(FetchToggleByName query)
+        {
+            return _repository.GetToggleByName(query.ToggleName);
         }
     }
 }
