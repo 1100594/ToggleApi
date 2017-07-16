@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace ToggleApi.Utilities
 {
@@ -22,6 +21,5 @@ namespace ToggleApi.Utilities
         {
             throw new InvalidDataException(message);
         }
-            
     }
 }

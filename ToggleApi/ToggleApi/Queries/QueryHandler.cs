@@ -10,7 +10,7 @@ namespace ToggleApi.Queries
 
         public QueryHandler(IToggleClientRepository repository)
         {
-            this._repository = repository;
+            _repository = repository;
         }
 
         public IEnumerable<KeyValuePair<string, bool>> Execute(FetchTogglesForClient query)

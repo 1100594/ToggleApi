@@ -6,15 +6,15 @@ namespace ToggleApi.Utilities
 
     public class ClientPermissions 
     {
-        public ClientPermissions(ICollection<Client> whitelist, ICollection<Client> customValues)
+        public ClientPermissions(IEnumerable<Client> whitelist, IEnumerable<Client> customValues)
         {
             Whitelist = whitelist;
             CustomValues = customValues;
         }
 
-        public ICollection<Client> Whitelist { get; set; }
+        public IEnumerable<Client> Whitelist { get; set; }
 
-        public ICollection<Client> CustomValues { get; set; }
+        public IEnumerable<Client> CustomValues { get; set; }
     }
 
 

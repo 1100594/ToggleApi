@@ -80,6 +80,33 @@ namespace ToggleApi.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid expression format.
+        /// </summary>
+        public static string InvalidExpressionFormatError {
+            get {
+                return ResourceManager.GetString("InvalidExpressionFormatError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Operation not allowed.
+        /// </summary>
+        public static string NotAllowedErrorMessage {
+            get {
+                return ResourceManager.GetString("NotAllowedErrorMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Resource not found.
+        /// </summary>
+        public static string ResourceNotFound {
+            get {
+                return ResourceManager.GetString("ResourceNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to *.
         /// </summary>
         public static string Wildcard {

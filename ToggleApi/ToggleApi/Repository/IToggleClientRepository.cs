@@ -8,12 +8,12 @@ namespace ToggleApi.Repository
         IEnumerable<KeyValuePair<string, bool>> GetTogglesForClient(string clientId, string clientVersion);
         Toggle GetToggleByName(string toggleName);
         void Save(Toggle toggle);
-        void Delete(string toggleName);
-        void AddToWhiteList(string toggleName, ICollection<Client> whitelist);
-        void AddToCustomValues(string toggleName, ICollection<Client> customValues);
+        void AddToWhiteList(string toggleName, IEnumerable<Client> whitelist);
+        void AddToCustomValues(string toggleName, IEnumerable<Client> customValues);
         void UpdateToggleValue(string toggleName, bool toggleValue);
-        void DeleteClient(string toggleName, string clientId, string clientVersion);
         void UpdateToggleWhitelist(string toggleName, string clientId, string clientVersion);
         void UpdateToggleCustomValue(string toggleName, bool toggleValue, string clientId, string clientVersion);
+        void Delete(string toggleName);
+        void DeleteClient(string toggleName, string clientId, string clientVersion);
     }
 }

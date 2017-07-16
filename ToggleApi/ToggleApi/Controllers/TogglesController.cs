@@ -41,8 +41,8 @@ namespace ToggleApi.Controllers
         /// <param name="clientVersion">Version of the client</param>
         /// <returns></returns>
         /// <response code="200">Returns the requested toggle</response>
-        /// <response code="404">Invalid request call</response>
-        /// <response code="403">If the toggle is not found</response>
+        /// <response code="400">Invalid request call</response>
+        /// <response code="404">If the toggle is not found</response>
         /// <response code="500">Internal error</response>
         [HttpGet("{clientId}/{clientVersion}")]
         public IActionResult Get(string clientId, string clientVersion)
@@ -67,15 +67,18 @@ namespace ToggleApi.Controllers
             catch (Exception e)
             {
                 _log.LogError($"{Resources.InternalErrorMessage}:{e.Message}");
-                return StatusCode(500, Resources.InternalErrorMessage);
+                return this.InternalServerError();
             }
         }
+
+
+
 
         /// <summary>
         /// Gets a specific toggle by its name
         /// </summary>     
         /// <response code="200">Returns the requested toggle</response>
-        /// <response code="404">Invalid request call</response>
+        /// <response code="400">Invalid request call</response>
         /// <response code="403">If the toggle is not found</response>
         /// <response code="500">Internal error</response>
         [HttpGet("{toggleName}")]
@@ -94,7 +97,7 @@ namespace ToggleApi.Controllers
                 if (toggle.IsNull())
                 {
                     var notFoundMessage = $"The {toggleName} toggle was not found";
-                    _log.LogError($"Resource not found:{notFoundMessage}");
+                    _log.LogError($"{Resources.ResourceNotFound}:{notFoundMessage}");
                     return NotFound(notFoundMessage);
                 }
 
@@ -103,7 +106,7 @@ namespace ToggleApi.Controllers
             catch (Exception e)
             {
                 _log.LogError($"{Resources.InternalErrorMessage}:{e.Message}");
-                return StatusCode(500, Resources.InternalErrorMessage);
+                return this.InternalServerError();
             }
         }
 
@@ -131,7 +134,7 @@ namespace ToggleApi.Controllers
         /// <returns></returns>
         /// <response code="200">If the toggle was created</response>
         /// <response code="400">If the request is not valid</response>
-        /// <response code="405">Operation not supported</response>
+        /// <response code="405">Operation not allowed</response>
         /// <response code="500">Internal error</response>
         [HttpPost("{toggleName}={toggleValue}&{expression}")]
         public IActionResult Post(string toggleName, bool toggleValue, string expression)
@@ -146,8 +149,8 @@ namespace ToggleApi.Controllers
                 _toggleClientParser.Input = expression;
                 if (!expression.IsNull() && !_toggleClientParser.IsValid())
                 {
-                    _log.LogError("Invalid expression format");
-                    return StatusCode(405, "Invalid expression format");
+                    _log.LogError($"{Resources.InvalidExpressionFormatError}: {expression}");
+                    return this.NotAllowed(Resources.InvalidExpressionFormatError);
                 }
 
                 var createCmd = new CreateToggle(toggleName, toggleValue);
@@ -173,7 +176,7 @@ namespace ToggleApi.Controllers
             catch (Exception e)
             {
                 _log.LogError($"{Resources.InternalErrorMessage}:{e.Message}");
-                return StatusCode(500, Resources.InternalErrorMessage);
+                return this.InternalServerError();
             }
         }
 
@@ -183,9 +186,9 @@ namespace ToggleApi.Controllers
         /// <param name="toggleName">Name of the toggle to update</param>
         /// <param name="toggleValue">New value of the toggle</param>
         /// <response code="200">If the toggle was edited</response>
-        /// <response code="404">Invalid request call</response>
+        /// <response code="400">Invalid request call</response>
         /// <response code="404">Toggle not found</response>
-        /// <response code="405">Operation not supported</response>
+        /// <response code="405">Operation not allowed</response>
         /// <response code="500">Internal error</response>
         [HttpPut("{toggleName}")]
         public IActionResult Put(string toggleName, bool toggleValue)
@@ -204,18 +207,18 @@ namespace ToggleApi.Controllers
             }
             catch (NotSupportedException e)
             {
-                _log.LogError($"Operation not supported:{e.Message}");
-                return StatusCode(405, $"The default value of toggle {toggleName} already is {toggleValue}");
+                _log.LogError($"{Resources.NotAllowedErrorMessage}:{e.Message}");
+                return this.NotAllowed($"The default value of toggle {toggleName} already is {toggleValue}");
             }
             catch (ArgumentException e)
             {
-                _log.LogError($"Resource not found:{e.Message}");
+                _log.LogError($"{Resources.ResourceNotFound}:{e.Message}");
                 return NotFound($"The {toggleName} toggle was not found");
             }
             catch (Exception e)
             {
                 _log.LogError($"{Resources.InternalErrorMessage}:{e.Message}");
-                return StatusCode(500, Resources.InternalErrorMessage);
+                return this.InternalServerError();
             }
         }
 
@@ -227,9 +230,9 @@ namespace ToggleApi.Controllers
         /// <param name="clientId">Id of the client to include</param>
         /// <param name="clientVersion">Version of the client to include</param>
         /// <response code="200">If the toggle was edited</response>
-        /// <response code="404">Invalid request call</response>
+        /// <response code="400">Invalid request call</response>
         /// <response code="404">Toggle not found</response>
-        /// <response code="405">Operation not supported</response>
+        /// <response code="405">Operation not allowed</response>
         /// <response code="500">Internal error</response>
         [HttpPut("{toggleName}/{clientId}/{clientVersion}")]
         public IActionResult Put(string toggleName, string clientId, string clientVersion)
@@ -248,18 +251,18 @@ namespace ToggleApi.Controllers
             //TODO create a clientInvalidFormat exception
             catch (NotSupportedException e)
             {
-                _log.LogError($"Operation not supported:{e.Message}");
-                return StatusCode(405, $"The format of client name or version is not supported {clientId}:{clientVersion}");
+                _log.LogError($"{Resources.NotAllowedErrorMessage}:{e.Message}");
+               return this.NotAllowed($"The format of client name or version is not supported {clientId}:{clientVersion}");
             }
             catch (ArgumentException e)
             {
-                _log.LogError($"Resource not found:{e.Message}");
+                _log.LogError($"{Resources.ResourceNotFound}:{e.Message}");
                 return NotFound($"The {toggleName} toggle was not found");
             }
             catch (Exception e)
             {
                 _log.LogError($"{Resources.InternalErrorMessage}:{e.Message}");
-                return StatusCode(500, Resources.InternalErrorMessage);
+                return this.InternalServerError();
             }
         }
 
@@ -272,9 +275,9 @@ namespace ToggleApi.Controllers
         /// <param name="clientId">Id of the client </param>
         /// <param name="clientVersion">Version of the client</param>
         /// <response code="200">If the toggle was edited</response>
-        /// <response code="404">Invalid request call</response>
+        /// <response code="400">Invalid request call</response>
         /// <response code="404">Toggle not found</response>
-        /// <response code="405">Operation not supported</response>
+        /// <response code="405">Operation not allowed</response>
         /// <response code="500">Internal error</response>
         [HttpPut("{toggleName}/{toggleValue}/{clientId}/{clientVersion}")]
         public IActionResult Put(string toggleName, bool toggleValue, string clientId, string clientVersion)
@@ -293,8 +296,8 @@ namespace ToggleApi.Controllers
             //TODO create a clientInvalidFormat exception
             catch (NotSupportedException e)
             {
-                _log.LogError($"Operation not supported:{e.Message}");
-                return StatusCode(405, $"The format of client name or version is not supported {clientId}:{clientVersion}");
+                _log.LogError($"{Resources.NotAllowedErrorMessage}:{e.Message}");
+                return this.NotAllowed($"The format of client name or version is not supported {clientId}:{clientVersion}");
             }
             catch (ArgumentException e)
             {
@@ -304,7 +307,7 @@ namespace ToggleApi.Controllers
             catch (Exception e)
             {
                 _log.LogError($"{Resources.InternalErrorMessage}:{e.Message}");
-                return StatusCode(500, Resources.InternalErrorMessage);
+                return this.InternalServerError();
             }
         }
 
@@ -339,7 +342,7 @@ namespace ToggleApi.Controllers
             catch (Exception e)
             {
                 _log.LogError($"{Resources.InternalErrorMessage}:{e.Message}");
-                return StatusCode(500, Resources.InternalErrorMessage);
+                return this.InternalServerError();
             }
         }
 
@@ -372,13 +375,13 @@ namespace ToggleApi.Controllers
             //TODO Create two exceptions to know when toggle was not found and when  client without go to the log
             catch (ArgumentException e)
             {
-                _log.LogError($"Resource not found:{e.Message}");
-                return NotFound("The resource was not found");
+                _log.LogError($"{Resources.ResourceNotFound}:{e.Message}");
+                return NotFound(Resources.ResourceNotFound);
             }
             catch (Exception e)
             {
                 _log.LogError($"{Resources.InternalErrorMessage}:{e.Message}");
-                return StatusCode(500, Resources.InternalErrorMessage);
+                return this.InternalServerError();
             }
         }
     }

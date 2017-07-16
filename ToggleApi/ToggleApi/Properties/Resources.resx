@@ -123,6 +123,15 @@
   <data name="InvalidDataErrorMessage" xml:space="preserve">
     <value>Invalid expression for client permissions</value>
   </data>
+  <data name="InvalidExpressionFormatError" xml:space="preserve">
+    <value>Invalid expression format</value>
+  </data>
+  <data name="NotAllowedErrorMessage" xml:space="preserve">
+    <value>Operation not allowed</value>
+  </data>
+  <data name="ResourceNotFound" xml:space="preserve">
+    <value>Resource not found</value>
+  </data>
   <data name="Wildcard" xml:space="preserve">
     <value>*</value>
     <comment>Wildcard value</comment>

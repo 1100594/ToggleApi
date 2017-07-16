@@ -25,7 +25,7 @@ namespace ToggleApi.Models
             _customValues = new Dictionary<Client, bool>();
         }
 
-        public void AddToWhitelist(ICollection<Client> clients)
+        public void AddToWhitelist(IEnumerable<Client> clients)
         {
             ThrowOnNullArgument(clients, nameof(clients));
 
@@ -97,7 +97,7 @@ namespace ToggleApi.Models
         {
             ThrowOnNullArgument(clients, nameof(clients));
 
-            var newCustomValues = clients.Where(c => !_customValues.Keys.Contains(c)).ToList();
+            var newCustomValues = clients.Where(c => !_customValues.Keys.Contains(c));
 
             foreach (var value in newCustomValues)
             {
@@ -105,7 +105,7 @@ namespace ToggleApi.Models
             }
         }
 
-        public void ClearOverrideFor(Client client)
+        public void RemoveCustomValueFor(Client client)
         {
             ThrowOnNullArgument(client, nameof(client));
 
@@ -123,7 +123,7 @@ namespace ToggleApi.Models
             }
             else if (_customValues.ContainsKey(client))
             {
-                ClearOverrideFor(client);
+                RemoveCustomValueFor(client);
             }
             else
             {

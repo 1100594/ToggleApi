@@ -1,5 +1,4 @@
-﻿using System;
-using ToggleApi.Commands;
+﻿using ToggleApi.Commands;
 
 public class DeleteClientToggle : ICommand
 {
