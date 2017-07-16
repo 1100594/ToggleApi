@@ -10,7 +10,13 @@ namespace ToggleApi.Repository
     public class ToggleClientRepository : IToggleClientRepository
     {
         private static readonly ICollection<Toggle> Toggles = new List<Toggle>();
+        private readonly IToggleClientParser _toggleClientParser;
 
+        public ToggleClientRepository(IToggleClientParser toggleClientParser)
+        {
+            ThrowOnNullArgument(toggleClientParser, nameof(toggleClientParser));
+            _toggleClientParser = toggleClientParser;
+        }
 
         public IEnumerable<KeyValuePair<string, bool>> GetTogglesForClient(string clientId, string clientVersion)
         {
@@ -42,7 +48,7 @@ namespace ToggleApi.Repository
             var toggle = GetToggleByName(toggleName);
             if (toggle.IsNull())
             {
-                throw new ArgumentException($"The requested {toggleName} client does not exists");
+                throw new ArgumentException($"The requested {toggleName} toggle does not exists");
             }
             toggle.AddToWhitelist(whitelist);
         }
@@ -52,7 +58,7 @@ namespace ToggleApi.Repository
             var toggle = GetToggleByName(toggleName);
             if (toggle.IsNull())
             {
-                throw new ArgumentException($"The requested {toggleName} client does not exists");
+                throw new ArgumentException($"The requested {toggleName} toggle does not exists");
             }
             toggle.AddToCustomValues(customValues);
         }
@@ -61,7 +67,7 @@ namespace ToggleApi.Repository
             var toggleToDelete = GetToggleByName(toggleName);
             if (toggleToDelete.IsNull())
             {
-                throw new ArgumentException($"The requested {toggleName} client does not exists");
+                throw new ArgumentException($"The requested {toggleName} toggle does not exists");
             }
             Toggles.Remove(toggleToDelete);
         }
@@ -82,6 +88,51 @@ namespace ToggleApi.Repository
             toggleToUpdate.DefaultValue = toggleValue;
         }
 
+        public void UpdateToggleWhitelist(string toggleName, string clientId, string clientVersion)
+        {
+            var toggleToUpdate = GetToggleByName(toggleName);
+            if (toggleToUpdate.IsNull())
+            {
+                throw new ArgumentException($"The requested {toggleName} toggle does not exists");
+            }
+            if (!ValidClientFormat(clientId, clientVersion))
+            {
+                throw new NotSupportedException(
+                    $"The format of the client name or version is not valid {_toggleClientParser.Input}");
+            }
+
+            toggleToUpdate.UpdateWhitelist(new Client(clientId, clientVersion));
+        }
+
+        public void UpdateToggleCustomValue(string toggleName, bool toggleValue, string clientId, string clientVersion)
+        {
+            var toggleToUpdate = GetToggleByName(toggleName);
+            if (toggleToUpdate.IsNull())
+            {
+                throw new ArgumentException($"The requested {toggleName} toggle does not exists");
+            }
+
+            if (!ValidClientFormat(clientId, clientVersion))
+            {
+                throw new NotSupportedException(
+                    $"The format of the client name or version is not valid {_toggleClientParser.Input}");
+            }
+
+            var client = new Client(clientId, clientVersion);
+
+            toggleToUpdate.UpdateCustomValue(client, toggleValue);
+        }
+
+        private bool ValidClientFormat(string clientId, string clientVersion)
+        {
+            _toggleClientParser.Input = $@"{{{clientId}:{clientVersion}}}";
+            if (!_toggleClientParser.IsValid())
+            {
+                return false;
+            }
+            return true;
+        }
+
         public void DeleteClient(string toggleName, string clientId, string clientVersion)
         {
             var toggleToUpdate = GetToggleByName(toggleName);
@@ -92,6 +143,7 @@ namespace ToggleApi.Repository
             //TODO Review this 
             toggleToUpdate.DettachFrom(new Client(clientId, clientVersion));
         }
+
 
         public Toggle GetToggleByName(string toggleName)
         {

@@ -17,7 +17,8 @@ namespace ToggleApi.Controllers
         private readonly IToggleClientParser _toggleClientParser;
         private readonly IQueryHandler _queryHandler;
         private readonly ILogger<TogglesController> _log;
-        public TogglesController(IToggleClientParser toggleClientParser, IQueryHandler queryHandler, ICommandHandler commandHandler, ILogger<TogglesController> log)
+        public TogglesController(IToggleClientParser toggleClientParser, IQueryHandler queryHandler,
+            ICommandHandler commandHandler, ILogger<TogglesController> log)
         {
             ThrowOnNullArgument(toggleClientParser, nameof(toggleClientParser));
             ThrowOnNullArgument(queryHandler, nameof(queryHandler));
@@ -130,6 +131,7 @@ namespace ToggleApi.Controllers
         /// <returns></returns>
         /// <response code="200">If the toggle was created</response>
         /// <response code="400">If the request is not valid</response>
+        /// <response code="405">Operation not supported</response>
         /// <response code="500">Internal error</response>
         [HttpPost("{toggleName}={toggleValue}&{expression}")]
         public IActionResult Post(string toggleName, bool toggleValue, string expression)
@@ -141,26 +143,30 @@ namespace ToggleApi.Controllers
                     return BadRequest(ModelState);
                 }
 
+                _toggleClientParser.Input = expression;
+                if (!expression.IsNull() && !_toggleClientParser.IsValid())
+                {
+                    _log.LogError("Invalid expression format");
+                    return StatusCode(405, "Invalid expression format");
+                }
+
                 var createCmd = new CreateToggle(toggleName, toggleValue);
                 _commandHandler.Execute(createCmd);
 
-                _toggleClientParser.Input = expression;
-                if (_toggleClientParser.IsValid())
+                var clientPermissions = _toggleClientParser.Extract();
+                var whitelist = clientPermissions.Whitelist;
+                var customValues = clientPermissions.CustomValues;
+                if (whitelist.Any())
                 {
-                    var clientPermissions = _toggleClientParser.Extract();
-                    var whitelist = clientPermissions.Whitelist;
-                    var customValues = clientPermissions.CustomValues;
-                    if (whitelist.Any())
-                    {
-                        var whitelistCmd = new AddToWhitelist(toggleName, whitelist);
-                        _commandHandler.Execute(whitelistCmd);
-                    }
-                    if (customValues.Any())
-                    {
-                        var customValuesCmd = new AddToCustomValues(toggleName, customValues);
-                        _commandHandler.Execute(customValuesCmd);
-                    }
+                    var whitelistCmd = new AddToWhitelist(toggleName, whitelist);
+                    _commandHandler.Execute(whitelistCmd);
                 }
+                if (customValues.Any())
+                {
+                    var customValuesCmd = new AddToCustomValues(toggleName, customValues);
+                    _commandHandler.Execute(customValuesCmd);
+                }
+
 
                 return Ok();
             }
@@ -213,6 +219,94 @@ namespace ToggleApi.Controllers
             }
         }
 
+
+        /// <summary>
+        /// Updates toggle to include a new client in its whitelist
+        /// </summary>
+        /// <param name="toggleName">Name of the toggle to update</param>
+        /// <param name="clientId">Id of the client to include</param>
+        /// <param name="clientVersion">Version of the client to include</param>
+        /// <response code="200">If the toggle was edited</response>
+        /// <response code="404">Invalid request call</response>
+        /// <response code="404">Toggle not found</response>
+        /// <response code="405">Operation not supported</response>
+        /// <response code="500">Internal error</response>
+        [HttpPut("{toggleName}/{clientId}/{clientVersion}")]
+        public IActionResult Put(string toggleName, string clientId, string clientVersion)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var updateWhitelistValueCmd = new UpdateWhitelist(toggleName, clientId, clientVersion);
+                _commandHandler.Execute(updateWhitelistValueCmd);
+                return Ok();
+            }
+            //TODO create a clientInvalidFormat exception
+            catch (NotSupportedException e)
+            {
+                _log.LogError($"Operation not supported:{e.Message}");
+                return StatusCode(405, $"The format of client name or version is not supported {clientId}:{clientVersion}");
+            }
+            catch (ArgumentException e)
+            {
+                _log.LogError($"Resource not found:{e.Message}");
+                return NotFound($"The {toggleName} toggle was not found");
+            }
+            catch (Exception e)
+            {
+                _log.LogError($"{Resources.InternalErrorMessage}:{e.Message}");
+                return StatusCode(500, Resources.InternalErrorMessage);
+            }
+        }
+
+        /// <summary>
+        /// Updates toggle to include a new client in its custom value list 
+        /// or if the client already exists overides the custom value of the toggle
+        /// </summary>
+        /// <param name="toggleName">Name of the toggle to update</param>
+        /// <param name="toggleValue">Value of the toggle to update</param>
+        /// <param name="clientId">Id of the client </param>
+        /// <param name="clientVersion">Version of the client</param>
+        /// <response code="200">If the toggle was edited</response>
+        /// <response code="404">Invalid request call</response>
+        /// <response code="404">Toggle not found</response>
+        /// <response code="405">Operation not supported</response>
+        /// <response code="500">Internal error</response>
+        [HttpPut("{toggleName}/{toggleValue}/{clientId}/{clientVersion}")]
+        public IActionResult Put(string toggleName, bool toggleValue, string clientId, string clientVersion)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var updateToggleCustomValueCmd = new UpdateToggleCustomValue(toggleName, toggleValue, clientId, clientVersion);
+                _commandHandler.Execute(updateToggleCustomValueCmd);
+                return Ok();
+            }
+            //TODO create a clientInvalidFormat exception
+            catch (NotSupportedException e)
+            {
+                _log.LogError($"Operation not supported:{e.Message}");
+                return StatusCode(405, $"The format of client name or version is not supported {clientId}:{clientVersion}");
+            }
+            catch (ArgumentException e)
+            {
+                _log.LogError($"Resource not found:{e.Message}");
+                return NotFound($"The {toggleName} toggle was not found");
+            }
+            catch (Exception e)
+            {
+                _log.LogError($"{Resources.InternalErrorMessage}:{e.Message}");
+                return StatusCode(500, Resources.InternalErrorMessage);
+            }
+        }
 
         /// <summary>
         /// Deletes a toggle

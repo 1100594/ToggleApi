@@ -25,9 +25,36 @@ namespace ToggleApi.Models
             _customValues = new Dictionary<Client, bool>();
         }
 
-        internal void AddToWhitelist(ICollection<Client> clients)
+        public void AddToWhitelist(ICollection<Client> clients)
         {
+            ThrowOnNullArgument(clients, nameof(clients));
+
             _whitelist.AddRange(clients.Except(_whitelist));
+        }
+
+        public void UpdateWhitelist(Client client)
+        {
+            ThrowOnNullArgument(client, nameof(client));
+
+            if (IsApplicableTo(client))
+                throw new ArgumentException(
+                    $"Client application \"{client.Id}:{client.Version}\" already " +
+                    $"have permission to access toggle \"{Name}\"");
+
+            _whitelist.Add(client);
+        }
+
+        public void UpdateCustomValue(Client client, bool toggleValue)
+        {
+            ThrowOnNullArgument(client, nameof(client));
+            if (IsInCustomValues(client))
+            {
+                _customValues[client] = toggleValue;
+            }
+            else
+            {
+               _customValues.Add(client, toggleValue);
+            }
         }
 
         private bool WhitelistExists()
@@ -142,5 +169,6 @@ namespace ToggleApi.Models
         {
             return $"{Name}:{DefaultValue}";
         }
+
     }
 }
