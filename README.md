@@ -9,6 +9,8 @@ Frameworks - Packages - Patterns - Features used
 <li><a href="https://docs.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection" target="_black">Dependency Injection</li>
 <li><a href="https://docs.microsoft.com/en-us/aspnet/core/tutorials/web-api-help-pages-using-swagger" target="_black">Swagger</li>
 <li><a href="https://github.com/serilog/serilog-extensions-logging-file" target="_black">Serilog</li>
+<li>xUnit</li>
+<li>Moq</li>
 </ul>
 
 <h3>Installation Instructions (1)</h3>

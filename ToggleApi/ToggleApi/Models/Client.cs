@@ -51,7 +51,7 @@ namespace ToggleApi.Models
         private bool IsCompatibleVersion(string otherVersion)
         {
             //TODO The 1.1.* scenario is missing
-            return Version == otherVersion || Version == Resources.Wildcard;
+            return Version.Equals(otherVersion) || Version.Equals(Resources.Wildcard);
         }
 
         public override string ToString()

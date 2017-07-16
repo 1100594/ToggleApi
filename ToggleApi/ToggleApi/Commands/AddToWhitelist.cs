@@ -6,9 +6,9 @@ namespace ToggleApi.Commands
     public class AddToWhitelist : ICommand
     {
         public string ToggleName { get; }
-        public ICollection<Client> Whitelist { get; }
+        public IEnumerable<Client> Whitelist { get; }
 
-        public AddToWhitelist(string toggleName, ICollection<Client> whitelist)
+        public AddToWhitelist(string toggleName, IEnumerable<Client> whitelist)
         {
             ToggleName = toggleName;
             Whitelist = whitelist;
