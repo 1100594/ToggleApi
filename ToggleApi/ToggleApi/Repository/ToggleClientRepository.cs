@@ -71,9 +71,26 @@ namespace ToggleApi.Repository
             var toggleToUpdate = GetToggleByName(toggleName);
             if (toggleToUpdate.IsNull())
             {
-                throw new ArgumentException($"The requested {toggleName} client does not exists");
+                throw new ArgumentException($"The requested {toggleName} toggle does not exist");
             }
-            toggleToUpdate.Value = toggleValue;
+
+            var defaultValue = toggleToUpdate.DefaultValue;
+            if (defaultValue == toggleValue)
+            {
+                throw new NotSupportedException($"The default value of toggle {toggleName} already is {toggleValue}");
+            }
+            toggleToUpdate.DefaultValue = toggleValue;
+        }
+
+        public void DeleteClient(string toggleName, string clientId, string clientVersion)
+        {
+            var toggleToUpdate = GetToggleByName(toggleName);
+            if (toggleToUpdate.IsNull())
+            {
+                throw new ArgumentException($"The requested {toggleName} toggle does not exists");
+            }
+            //TODO Review this 
+            toggleToUpdate.DettachFrom(new Client(clientId, clientVersion));
         }
 
         public Toggle GetToggleByName(string toggleName)

@@ -41,22 +41,18 @@ namespace ToggleApi.Commands
             _repository.AddToCustomValues(customValuesCommand.ToggleName, customValuesCommand.CustomValues);
         }
 
-        public void Execute(RemoveFromWhitelist command)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        public void Execute(RemoveFromCustomValues command)
-        {
-            throw new NotImplementedException();
-        }
 
         public void Execute(DeleteToggle deleteToggleCommand)
         {
             ThrowOnNullArgument(deleteToggleCommand, nameof(deleteToggleCommand));
 
             _repository.Delete(deleteToggleCommand.ToggleName);
+        }
+
+        public void Execute(DeleteClientToggle deleteClientToggleCommand)
+        {
+            ThrowOnNullArgument(deleteClientToggleCommand, nameof(deleteClientToggleCommand));
+            _repository.DeleteClient(deleteClientToggleCommand.ToggleName, deleteClientToggleCommand.ClientId, deleteClientToggleCommand.ClientVersion);
         }
     }
 }

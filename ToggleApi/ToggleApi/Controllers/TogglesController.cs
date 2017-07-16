@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ToggleApi.Commands;
@@ -145,7 +144,23 @@ namespace ToggleApi.Controllers
                 var createCmd = new CreateToggle(toggleName, toggleValue);
                 _commandHandler.Execute(createCmd);
 
-                ParseClientPermissions(toggleName, expression);
+                _toggleClientParser.Input = expression;
+                if (_toggleClientParser.IsValid())
+                {
+                    var clientPermissions = _toggleClientParser.Extract();
+                    var whitelist = clientPermissions.Whitelist;
+                    var customValues = clientPermissions.CustomValues;
+                    if (whitelist.Any())
+                    {
+                        var whitelistCmd = new AddToWhitelist(toggleName, whitelist);
+                        _commandHandler.Execute(whitelistCmd);
+                    }
+                    if (customValues.Any())
+                    {
+                        var customValuesCmd = new AddToCustomValues(toggleName, customValues);
+                        _commandHandler.Execute(customValuesCmd);
+                    }
+                }
 
                 return Ok();
             }
@@ -157,26 +172,17 @@ namespace ToggleApi.Controllers
         }
 
         /// <summary>
-        /// Updates the value and permissions of a toggle 
+        /// Updates the default value of a toggle 
         /// </summary>
-        ///<remarks>
-        /// Note that the regex expression contains the permissions of one or more services/applications (clients).
-        /// 
-        /// Rules: 
-        /// {id1:v1,id2:v1} - expression to add one or more clients to the whitelist of a toggle.
-        /// [^id:v1] - expression to exclude one or more clients.
-        /// The version can only contains 4 digits. 
-        /// The wildcard can be used to include all the versions, for example: {id1:\*}.
-        /// </remarks>
         /// <param name="toggleName">Name of the toggle to update</param>
         /// <param name="toggleValue">New value of the toggle</param>
-        /// <param name="expression">New permissions of the toggle</param>
         /// <response code="200">If the toggle was edited</response>
         /// <response code="404">Invalid request call</response>
-        /// <response code="404">Tiggle not found</response>
+        /// <response code="404">Toggle not found</response>
+        /// <response code="405">Operation not supported</response>
         /// <response code="500">Internal error</response>
         [HttpPut("{toggleName}")]
-        public IActionResult Put(string toggleName, bool toggleValue, [Optional] string expression)
+        public IActionResult Put(string toggleName, bool toggleValue)
         {
             try
             {
@@ -188,11 +194,12 @@ namespace ToggleApi.Controllers
                 var updateToggleValueCmd = new UpdateToggleValue(toggleName, toggleValue);
                 _commandHandler.Execute(updateToggleValueCmd);
 
-                if (!expression.IsNull())
-                    //TODO how to remove the old permissions 
-                    ParseClientPermissions(toggleName, expression);
-
                 return Ok();
+            }
+            catch (NotSupportedException e)
+            {
+                _log.LogError($"Operation not supported:{e.Message}");
+                return StatusCode(405, $"The default value of toggle {toggleName} already is {toggleValue}");
             }
             catch (ArgumentException e)
             {
@@ -205,6 +212,7 @@ namespace ToggleApi.Controllers
                 return StatusCode(500, Resources.InternalErrorMessage);
             }
         }
+
 
         /// <summary>
         /// Deletes a toggle
@@ -220,7 +228,6 @@ namespace ToggleApi.Controllers
         {
             try
             {
-                //TODO Handler errors
                 if (!ModelState.IsValid)
                 {
                     return BadRequest(ModelState);
@@ -242,24 +249,42 @@ namespace ToggleApi.Controllers
             }
         }
 
-        private void ParseClientPermissions(string toggleName, string expression)
+
+        /// <summary>
+        /// Deletes a client from a specific toggle 
+        /// </summary>
+        /// <param name="toggleName">Name of the toggle</param>
+        /// <param name="clientId">Id of the toggle to delete</param>
+        /// <param name="clientVersion">Version of the toggle to delete</param>
+        /// <returns></returns>
+        /// <response code="200">If the client was deleted</response>
+        /// <response code="400">If the request is not valid</response>
+        /// <response code="404">If the client/toggle were not found</response>
+        /// <response code="500">Internal error</response>
+        [HttpDelete("{toggleName}/{clientId}/{clientVersion}")]
+        public IActionResult Delete(string toggleName, string clientId, string clientVersion)
         {
-            _toggleClientParser.Input = expression;
-            if (_toggleClientParser.IsValid())
+            try
             {
-                var clientPermissions = _toggleClientParser.Extract();
-                var whitelist = clientPermissions.Whitelist;
-                var customValues = clientPermissions.CustomValues;
-                if (whitelist.Any())
+                if (!ModelState.IsValid)
                 {
-                    var whitelistCmd = new AddToWhitelist(toggleName, whitelist);
-                    _commandHandler.Execute(whitelistCmd);
+                    return BadRequest(ModelState);
                 }
-                if (customValues.Any())
-                {
-                    var customValuesCmd = new AddToCustomValues(toggleName, customValues);
-                    _commandHandler.Execute(customValuesCmd);
-                }
+
+                var deleteClientToggleCmd = new DeleteClientToggle(toggleName, clientId, clientVersion);
+                _commandHandler.Execute(deleteClientToggleCmd);
+                return Ok();
+            }
+            //TODO Create two exceptions to know when toggle was not found and when  client without go to the log
+            catch (ArgumentException e)
+            {
+                _log.LogError($"Resource not found:{e.Message}");
+                return NotFound("The resource was not found");
+            }
+            catch (Exception e)
+            {
+                _log.LogError($"{Resources.InternalErrorMessage}:{e.Message}");
+                return StatusCode(500, Resources.InternalErrorMessage);
             }
         }
     }

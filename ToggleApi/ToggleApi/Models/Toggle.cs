@@ -91,10 +91,19 @@ namespace ToggleApi.Models
             ThrowOnNullArgument(client, nameof(client));
 
             if (_whitelist.Contains(client))
+            {
                 _whitelist.Remove(client);
-
-            if (_customValues.ContainsKey(client))
+            }
+            else if (_customValues.ContainsKey(client))
+            {
                 ClearOverrideFor(client);
+            }
+            else
+            {
+                throw new ArgumentException($"Client application \"{client.Id}:{client.Version}\" " +
+                                            $"does not have permission to access toggle \"{Name}\"");
+            }
+
         }
 
         public override int GetHashCode()

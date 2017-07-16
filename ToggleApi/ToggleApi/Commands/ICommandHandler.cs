@@ -3,9 +3,8 @@
     public interface ICommandHandler: ICommandHandler<CreateToggle>
         , ICommandHandler<UpdateToggleValue>
         , ICommandHandler<AddToWhitelist>
-        , ICommandHandler<RemoveFromWhitelist>
         , ICommandHandler<AddToCustomValues>
-        , ICommandHandler<RemoveFromCustomValues>
+        , ICommandHandler<DeleteClientToggle>
         , ICommandHandler<DeleteToggle>
     {
         
