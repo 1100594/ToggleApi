@@ -41,7 +41,6 @@ namespace ToggleApi
             services.AddSingleton<IQueryHandler, QueryHandler>();
             services.AddSingleton<ICommandHandler, CommandHandler>();
             services.AddSingleton<IToggleClientParser, ToggleClientParser>();
-            services.AddTransient<IClientPermissions, ClientPermissions>();
 
             // Register the Swagger generator, defining one or more Swagger documents
             services.AddSwaggerGen(c =>
@@ -78,6 +77,7 @@ namespace ToggleApi
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "ToggleApi V1");
             });
+            loggerFactory.AddFile("Logs/toggleApi-{Date}.txt");
         }
     }
 }

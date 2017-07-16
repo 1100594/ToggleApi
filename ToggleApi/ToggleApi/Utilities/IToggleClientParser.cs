@@ -3,7 +3,7 @@
     public interface IToggleClientParser
     {
         string Input { get; set; }
-        IClientPermissions Extract();
+        ClientPermissions Extract();
         bool IsValid();
     }
 }

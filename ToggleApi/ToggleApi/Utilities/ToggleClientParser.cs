@@ -25,7 +25,7 @@ namespace ToggleApi.Utilities
             return Regex.IsMatch(Input, Pattern);
         }
 
-        public IClientPermissions Extract()
+        public ClientPermissions Extract()
         {
             ThrowOnNullArgument(Input, nameof(Input));
 

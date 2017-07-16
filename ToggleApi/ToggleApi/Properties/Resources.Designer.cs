@@ -62,6 +62,15 @@ namespace ToggleApi.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to There was an error processing your request.
+        /// </summary>
+        public static string InternalErrorMessage {
+            get {
+                return ResourceManager.GetString("InternalErrorMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid expression for client permissions.
         /// </summary>
         public static string InvalidDataErrorMessage {

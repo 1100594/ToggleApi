@@ -4,7 +4,7 @@ using ToggleApi.Models;
 namespace ToggleApi.Utilities
 {
 
-    public class ClientPermissions : IClientPermissions
+    public class ClientPermissions 
     {
         public ClientPermissions(ICollection<Client> whitelist, ICollection<Client> customValues)
         {

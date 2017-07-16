@@ -12,7 +12,7 @@ namespace ToggleApi.Models
         private Dictionary<Client, bool> _customValues;
 
         public string Name { get; }
-        public bool DefaultValue { get; }
+        public bool DefaultValue { get; internal set; }
 
         public IEnumerable<Client> Whitelist => _whitelist.AsReadOnly();
         public IEnumerable<Client> CustomValues => _customValues.Keys;
@@ -27,7 +27,7 @@ namespace ToggleApi.Models
 
         internal void AddToWhitelist(ICollection<Client> clients)
         {
-            _whitelist.AddRange(clients.Except(Whitelist));
+            _whitelist.AddRange(clients.Except(_whitelist));
         }
 
         private bool WhitelistExists()
@@ -36,7 +36,7 @@ namespace ToggleApi.Models
         }
         private bool IsInWhitelist(Client client)
         {
-            return Whitelist.Contains(client);
+            return _whitelist.Contains(client);
         }
 
         private bool IsInCustomValues(Client client)
@@ -52,7 +52,7 @@ namespace ToggleApi.Models
             return IsInWhitelist(client) || IsInCustomValues(client);
         }
 
-        public bool ValueFor(Client client)
+        public bool GetValueFor(Client client)
         {
             ThrowOnNullArgument(client, nameof(client));
 
@@ -61,13 +61,15 @@ namespace ToggleApi.Models
                     $"Client application \"{client.Id}:{client.Version}\" does not " +
                     $"have permission to access toggle \"{Name}\"");
 
-            if (_customValues.ContainsKey(client))
-                return !DefaultValue;
+            if (_customValues.TryGetValue(client, out bool customValue))
+                return customValue;
             return DefaultValue;
         }
 
-        public void OverrideWith(IEnumerable<Client> clients)
+        public void AddToCustomValues(IEnumerable<Client> clients)
         {
+            ThrowOnNullArgument(clients, nameof(clients));
+
             var newCustomValues = clients.Where(c => !_customValues.Keys.Contains(c)).ToList();
 
             foreach (var value in newCustomValues)

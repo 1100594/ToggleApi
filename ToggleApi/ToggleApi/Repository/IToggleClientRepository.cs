@@ -11,6 +11,6 @@ namespace ToggleApi.Repository
         void Delete(string toggleName);
         void AddToWhiteList(string toggleName, ICollection<Client> whitelist);
         void AddToCustomValues(string toggleName, ICollection<Client> customValues);
-        void UpdateToggleValue(string toggleName, bool toogleValue);
+        void UpdateToggleValue(string toggleName, bool toggleValue);
     }
 }

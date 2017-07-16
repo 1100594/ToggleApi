@@ -20,7 +20,9 @@ namespace ToggleApi.Repository
             {
                 if (toggle.IsApplicableTo(client))
                 {
-                    yield return new KeyValuePair<string, bool>(toggle.Name, toggle.DefaultValue);
+                    var toggleValue = toggle.GetValueFor(client);
+                    var toggleName = toggle.Name;
+                    yield return new KeyValuePair<string, bool>(toggleName, toggleValue);
                 }
             }
         }
@@ -52,7 +54,7 @@ namespace ToggleApi.Repository
             {
                 throw new ArgumentException($"The requested {toggleName} client does not exists");
             }
-            toggle.OverrideWith(customValues);
+            toggle.AddToCustomValues(customValues);
         }
         public void Delete(string toggleName)
         {
@@ -64,16 +66,14 @@ namespace ToggleApi.Repository
             Toggles.Remove(toggleToDelete);
         }
 
-        public void UpdateToggleValue(string toggleName, bool toogleValue)
+        public void UpdateToggleValue(string toggleName, bool toggleValue)
         {
             var toggleToUpdate = GetToggleByName(toggleName);
             if (toggleToUpdate.IsNull())
             {
                 throw new ArgumentException($"The requested {toggleName} client does not exists");
             }
-            //TODO review this read only props
-            Toggles.Add(new Toggle(toggleToUpdate.Name, toogleValue));
-            Toggles.Remove(toggleToUpdate);
+            toggleToUpdate.Value = toggleValue;
         }
 
         public Toggle GetToggleByName(string toggleName)

@@ -2,9 +2,10 @@
 using System.Linq;
 using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using ToggleApi.Commands;
+using ToggleApi.Properties;
 using ToggleApi.Queries;
-using ToggleApi.Repository;
 using ToggleApi.Utilities;
 using static ToggleApi.Utilities.Utils;
 
@@ -16,17 +17,17 @@ namespace ToggleApi.Controllers
         private readonly ICommandHandler _commandHandler;
         private readonly IToggleClientParser _toggleClientParser;
         private readonly IQueryHandler _queryHandler;
-
-        public TogglesController(IToggleClientParser toogleClientParser, IQueryHandler queryHandler,
-            IToggleClientRepository toggleClientRepository, ICommandHandler commandHandler)
+        private readonly ILogger<TogglesController> _log;
+        public TogglesController(IToggleClientParser toggleClientParser, IQueryHandler queryHandler, ICommandHandler commandHandler, ILogger<TogglesController> log)
         {
-            ThrowOnNullArgument(toggleClientRepository, nameof(toggleClientRepository));
-            ThrowOnNullArgument(toogleClientParser, nameof(toogleClientParser));
+            ThrowOnNullArgument(toggleClientParser, nameof(toggleClientParser));
             ThrowOnNullArgument(queryHandler, nameof(queryHandler));
             ThrowOnNullArgument(commandHandler, nameof(commandHandler));
-            _toggleClientParser = toogleClientParser;
+            ThrowOnNullArgument(log, nameof(log));
+            _toggleClientParser = toggleClientParser;
             _queryHandler = queryHandler;
             _commandHandler = commandHandler;
+            _log = log;
         }
 
 
@@ -34,7 +35,7 @@ namespace ToggleApi.Controllers
         /// Gets a list of toggles for a specific service/application (clients).
         /// </summary>
         /// <remarks>
-        /// Note that the ID is a string and not an integer. Examples: 1.1.1.1, *, 1
+        /// Note that the version is a string and not an integer. Examples: 1.1.1.1, *, 1
         /// </remarks>
         /// <param name="clientId">Id of the client</param>
         /// <param name="clientVersion">Version of the client</param>
@@ -42,6 +43,7 @@ namespace ToggleApi.Controllers
         /// <response code="200">Returns the requested toggle</response>
         /// <response code="404">Invalid request call</response>
         /// <response code="403">If the toggle is not found</response>
+        /// <response code="500">Internal error</response>
         [HttpGet("{clientId}/{clientVersion}")]
         public IActionResult Get(string clientId, string clientVersion)
         {
@@ -58,11 +60,14 @@ namespace ToggleApi.Controllers
                 if (toggles.Any())
                     return Ok(toggles);
 
-                return NotFound($"The {clientId}:{clientVersion} does not have any clients");
+                var notFoundMessage = $"The {clientId}:{clientVersion} client does not have any toggles";
+                _log.LogError($"Resource not found:{notFoundMessage}");
+                return NotFound(notFoundMessage);
             }
             catch (Exception e)
             {
-                return StatusCode(500, e.Message);
+                _log.LogError($"{Resources.InternalErrorMessage}:{e.Message}");
+                return StatusCode(500, Resources.InternalErrorMessage);
             }
         }
 
@@ -72,6 +77,7 @@ namespace ToggleApi.Controllers
         /// <response code="200">Returns the requested toggle</response>
         /// <response code="404">Invalid request call</response>
         /// <response code="403">If the toggle is not found</response>
+        /// <response code="500">Internal error</response>
         [HttpGet("{toggleName}")]
         public IActionResult Get(string toggleName)
         {
@@ -86,12 +92,18 @@ namespace ToggleApi.Controllers
                 var toggle = _queryHandler.Execute(fetchToggleByName);
 
                 if (toggle.IsNull())
-                    return NotFound($"The {toggleName} toggle was not found");
-                return Ok(toggle);               
+                {
+                    var notFoundMessage = $"The {toggleName} toggle was not found";
+                    _log.LogError($"Resource not found:{notFoundMessage}");
+                    return NotFound(notFoundMessage);
+                }
+
+                return Ok(toggle);
             }
             catch (Exception e)
             {
-                return StatusCode(500, e.Message);
+                _log.LogError($"{Resources.InternalErrorMessage}:{e.Message}");
+                return StatusCode(500, Resources.InternalErrorMessage);
             }
         }
 
@@ -119,6 +131,7 @@ namespace ToggleApi.Controllers
         /// <returns></returns>
         /// <response code="200">If the toggle was created</response>
         /// <response code="400">If the request is not valid</response>
+        /// <response code="500">Internal error</response>
         [HttpPost("{toggleName}={toggleValue}&{expression}")]
         public IActionResult Post(string toggleName, bool toggleValue, string expression)
         {
@@ -138,7 +151,8 @@ namespace ToggleApi.Controllers
             }
             catch (Exception e)
             {
-                return StatusCode(500, e.Message);
+                _log.LogError($"{Resources.InternalErrorMessage}:{e.Message}");
+                return StatusCode(500, Resources.InternalErrorMessage);
             }
         }
 
@@ -160,6 +174,7 @@ namespace ToggleApi.Controllers
         /// <response code="200">If the toggle was edited</response>
         /// <response code="404">Invalid request call</response>
         /// <response code="404">Tiggle not found</response>
+        /// <response code="500">Internal error</response>
         [HttpPut("{toggleName}")]
         public IActionResult Put(string toggleName, bool toggleValue, [Optional] string expression)
         {
@@ -181,11 +196,13 @@ namespace ToggleApi.Controllers
             }
             catch (ArgumentException e)
             {
-                return NotFound(e.Message);
+                _log.LogError($"Resource not found:{e.Message}");
+                return NotFound($"The {toggleName} toggle was not found");
             }
             catch (Exception e)
             {
-                return StatusCode(500, e.Message);
+                _log.LogError($"{Resources.InternalErrorMessage}:{e.Message}");
+                return StatusCode(500, Resources.InternalErrorMessage);
             }
         }
 
@@ -197,6 +214,7 @@ namespace ToggleApi.Controllers
         /// <response code="200">If the toggle was deleted</response>
         /// <response code="400">If the request is not valid</response>
         /// <response code="404">If the toggle was not found</response>
+        /// <response code="500">Internal error</response>
         [HttpDelete("{toggleName}")]
         public IActionResult Delete(string toggleName)
         {
@@ -214,11 +232,13 @@ namespace ToggleApi.Controllers
             }
             catch (ArgumentException e)
             {
-                return NotFound(e.Message);
+                _log.LogError($"Resource not found:{e.Message}");
+                return NotFound($"The {toggleName} toggle was not found");
             }
             catch (Exception e)
             {
-                return Forbid(e.Message);
+                _log.LogError($"{Resources.InternalErrorMessage}:{e.Message}");
+                return StatusCode(500, Resources.InternalErrorMessage);
             }
         }
 

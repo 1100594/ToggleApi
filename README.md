@@ -7,7 +7,8 @@ Frameworks - Packages - Patterns - Features used
 <li><a href="https://docs.microsoft.com/azure/architecture/patterns/cqrs" target="_blank">CQRS</a></li></li>
 <li><a href="https://msdn.microsoft.com/en-us/library/ff649690.aspx" target="_blank"> Repository pattern</li>
 <li><a href="https://docs.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection" target="_black">Dependency Injection</li>
-<li><a href="https://docs.microsoft.com/en-us/aspnet/core/tutorials/web-api-help-pages-using-swagger" target="_black">Swagger/li>
+<li><a href="https://docs.microsoft.com/en-us/aspnet/core/tutorials/web-api-help-pages-using-swagger" target="_black">Swagger</li>
+<li><a href="https://github.com/serilog/serilog-extensions-logging-file" target="_black">Serilog</li>
 </ul>
 
 <h3>Installation Instructions (1)</h3>
