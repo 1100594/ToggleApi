@@ -76,7 +76,8 @@ namespace ToggleApi.Repository
             {
                 throw new ArgumentException($"The requested {toggleName} toggle does not exists");
             }
-            toggle.AddToCustomValues(customValues);
+
+            toggle.AddOrUpdateCustomValues(customValues);
         }
 
         public void UpdateToggleValue(string toggleName, bool toggleValue)
@@ -108,7 +109,7 @@ namespace ToggleApi.Repository
                     $"The format of the client name or version is not valid {_toggleClientParser.Input}");
             }
 
-            toggleToUpdate.UpdateWhitelist(new Client(clientId, clientVersion));
+            toggleToUpdate.AddToWhitelist(new[] { new Client(clientId, clientVersion) });
         }
 
         public void UpdateToggleCustomValue(string toggleName, bool toggleValue, string clientId, string clientVersion)
@@ -127,7 +128,7 @@ namespace ToggleApi.Repository
 
             var client = new Client(clientId, clientVersion);
 
-            toggleToUpdate.UpdateCustomValue(client, toggleValue);
+            toggleToUpdate.AddOrUpdateCustomValue(client, toggleValue);
         }
 
         public void Delete(string toggleName)

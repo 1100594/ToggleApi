@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using ToggleApi.Properties;
 using ToggleApi.Utilities;
+using static ToggleApi.Utilities.Utils;
 
 namespace ToggleApi.Models
 {
@@ -12,6 +13,9 @@ namespace ToggleApi.Models
 
         public Client(string id, string version)
         {
+            ThrowOnNullArgument(id, nameof(id));
+            ThrowOnNullArgument(version, nameof(version));
+
             Id = id;
             Version = version;
         }
@@ -37,9 +41,11 @@ namespace ToggleApi.Models
             return GetHashCode(this);
         }
 
-        public  int GetHashCode(Client obj)
+        public int GetHashCode(Client obj)
         {
-            if (obj.IsNull() || obj.Id.IsNull() || obj.Version.IsNull()) return base.GetHashCode();
+            if (obj.IsNull())
+                return base.GetHashCode();
+
             return $"{obj.Id}.{obj.Version}".GetHashCode();
         }
 
@@ -50,14 +56,39 @@ namespace ToggleApi.Models
 
         private bool IsCompatibleVersion(string otherVersion)
         {
-            //TODO The 1.1.* scenario is missing
-            return Version.Equals(otherVersion) || Version.Equals(Resources.Wildcard);
+            if (IsWildCard(Version) || IsWildCard(otherVersion))
+                return true;
+
+            if (Version == otherVersion)
+                return true;
+
+            string thisVersion = GetVersionBeforeWildCard(Version);
+            string otherVersionSub = GetVersionBeforeWildCard(otherVersion);
+
+            return thisVersion.StartsWith(otherVersionSub)
+                || otherVersionSub.StartsWith(thisVersion);
+        }
+
+        private static string GetVersionBeforeWildCard(string version)
+        {
+            int wildCardIndex = version.IndexOf(Resources.Wildcard, StringComparison.Ordinal);
+
+            if (wildCardIndex >= 0)
+                return version.Substring(0, wildCardIndex);
+
+            return version;
+        }
+
+        private static bool IsWildCard(string version)
+        {
+            if (version == Resources.Wildcard)
+                return true;
+            return false;
         }
 
         public override string ToString()
         {
             return $"{Id}:{Version}";
         }
-
     }
 }

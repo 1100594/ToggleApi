@@ -9,8 +9,10 @@ Frameworks - Packages - Patterns - Features used
 <li><a href="https://docs.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection" target="_black">Dependency Injection</li>
 <li><a href="https://docs.microsoft.com/en-us/aspnet/core/tutorials/web-api-help-pages-using-swagger" target="_black">Swagger</li>
 <li><a href="https://github.com/serilog/serilog-extensions-logging-file" target="_black">Serilog</li>
-<li>xUnit</li>
-<li>Moq</li>
+<li><a href="https://xunit.github.io/docs/getting-started-dotnet-core" target="_black">xUnit</li>
+<li><a href="https://xunit.github.io/docs/getting-started-dotnet-core" target="_black">xUnit</li>
+<li><a href="https://github.com/Moq/moq4/wiki/Quickstart" target="_black">Moq</li>
+<li><a href="https://github.com/Microsoft/vstest-docs/blob/master/docs/analyze.md#working-with-code-coverage" target="_black">Microsoft Code coverage</li>
 </ul>
 
 <h3>Installation Instructions (1)</h3>

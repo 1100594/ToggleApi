@@ -6,169 +6,165 @@ using static ToggleApi.Utilities.Utils;
 
 namespace ToggleApi.Models
 {
-    public class Toggle : IEquatable<Toggle>, IEqualityComparer<Toggle>
-    {
-        private List<Client> _whitelist;
-        private Dictionary<Client, bool> _customValues;
+	public class Toggle : IEquatable<Toggle>, IEqualityComparer<Toggle>
+	{
+		private List<Client> _whitelist;
+		private Dictionary<Client, bool> _customValues;
 
-        public string Name { get; }
-        public bool DefaultValue { get; internal set; }
+		public string Name { get; }
+		public bool DefaultValue { get; internal set; }
 
-        public IEnumerable<Client> Whitelist => _whitelist.AsReadOnly();
-        public IEnumerable<Client> CustomValues => _customValues.Keys;
+		public IEnumerable<Client> Whitelist => _whitelist.AsReadOnly();
+		public IEnumerable<Client> CustomValues => _customValues.Keys;
 
-        public Toggle(string name, bool value)
-        {
-            Name = name;
-            DefaultValue = value;
-            _whitelist = new List<Client>();
-            _customValues = new Dictionary<Client, bool>();
-        }
+		public Toggle(string name, bool value)
+		{
+			ThrowOnNullArgument(name, nameof(name));
 
-        public void AddToWhitelist(IEnumerable<Client> clients)
-        {
-            ThrowOnNullArgument(clients, nameof(clients));
+			Name = name;
+			DefaultValue = value;
+			_whitelist = new List<Client>();
+			_customValues = new Dictionary<Client, bool>();
+		}
 
-            _whitelist.AddRange(clients.Except(_whitelist));
-        }
+		public void AddToWhitelist(IEnumerable<Client> clients)
+		{
+			ThrowOnNullArgument(clients, nameof(clients));
 
-        public void UpdateWhitelist(Client client)
-        {
-            ThrowOnNullArgument(client, nameof(client));
+			if (clients.Any(client => IsInWhitelist(client)))
+			{
+				var client = clients.First(cl => IsInWhitelist(cl));
+				throw new ArgumentException(
+					$"Client application \"{client.Id}:{client.Version}\" already " +
+					$"have permission to access toggle \"{Name}\"");
+			}
 
-            if (IsApplicableTo(client))
-                throw new ArgumentException(
-                    $"Client application \"{client.Id}:{client.Version}\" already " +
-                    $"have permission to access toggle \"{Name}\"");
+			_whitelist.AddRange(clients);
+		}
 
-            _whitelist.Add(client);
-        }
+		public bool IsApplicableTo(Client client)
+		{
+			if (!WhitelistExists())
+				return true;
 
-        public void UpdateCustomValue(Client client, bool toggleValue)
-        {
-            ThrowOnNullArgument(client, nameof(client));
-            if (IsInCustomValues(client))
-            {
-                _customValues[client] = toggleValue;
-            }
-            else
-            {
-               _customValues.Add(client, toggleValue);
-            }
-        }
+			return IsInWhitelist(client) || IsInCustomValues(client);
+		}
 
-        private bool WhitelistExists()
-        {
-            return _whitelist.Count > 0;
-        }
-        private bool IsInWhitelist(Client client)
-        {
-            return _whitelist.Contains(client);
-        }
+		public bool GetValueFor(Client client)
+		{
+			ThrowOnNullArgument(client, nameof(client));
 
-        private bool IsInCustomValues(Client client)
-        {
-            return _customValues.ContainsKey(client);
-        }
+			if (!IsApplicableTo(client))
+				throw new ArgumentException(
+					$"Client application \"{client.Id}:{client.Version}\" does not " +
+					$"have permission to access toggle \"{Name}\"");
 
-        public bool IsApplicableTo(Client client)
-        {
-            if (!WhitelistExists())
-                return true;
+			if (_customValues.TryGetValue(client, out bool customValue))
+				return customValue;
+			return DefaultValue;
+		}
 
-            return IsInWhitelist(client) || IsInCustomValues(client);
-        }
+		public void AddOrUpdateCustomValues(IEnumerable<Client> clients)
+		{
+			ThrowOnNullArgument(clients, nameof(clients));
 
-        public bool GetValueFor(Client client)
-        {
-            ThrowOnNullArgument(client, nameof(client));
+			foreach (var client in clients)
+			{
+				AddOrUpdateCustomValue(client, !DefaultValue);
+			}
+		}
 
-            if (!IsApplicableTo(client))
-                throw new ArgumentException(
-                    $"Client application \"{client.Id}:{client.Version}\" does not " +
-                    $"have permission to access toggle \"{Name}\"");
+		public void AddOrUpdateCustomValue(Client client, bool toggleValue)
+		{
+			ThrowOnNullArgument(client, nameof(client));
 
-            if (_customValues.TryGetValue(client, out bool customValue))
-                return customValue;
-            return DefaultValue;
-        }
+			if (IsInCustomValues(client))
+			{
+				_customValues[client] = toggleValue;
+			}
+			else
+			{
+				_customValues.Add(client, toggleValue);
+			}
+		}
 
-        public void AddToCustomValues(IEnumerable<Client> clients)
-        {
-            ThrowOnNullArgument(clients, nameof(clients));
+		public void RemoveCustomValueFor(Client client)
+		{
+			ThrowOnNullArgument(client, nameof(client));
 
-            var newCustomValues = clients.Where(c => !_customValues.Keys.Contains(c));
+			if (_customValues.ContainsKey(client))
+				_customValues.Remove(client);
+		}
 
-            foreach (var value in newCustomValues)
-            {
-                _customValues.Add(value, !DefaultValue);
-            }
-        }
+		public void DettachFrom(Client client)
+		{
+			ThrowOnNullArgument(client, nameof(client));
 
-        public void RemoveCustomValueFor(Client client)
-        {
-            ThrowOnNullArgument(client, nameof(client));
+			if (_whitelist.Contains(client))
+			{
+				_whitelist.Remove(client);
+			}
+			else if (_customValues.ContainsKey(client))
+			{
+				RemoveCustomValueFor(client);
+			}
+			else
+			{
+				throw new ArgumentException($"Client application \"{client.Id}:{client.Version}\" " +
+											$"does not have permission to access toggle \"{Name}\"");
+			}
+		}
 
-            if (_customValues.ContainsKey(client))
-                _customValues.Remove(client);
-        }
+		public override int GetHashCode()
+		{
+			return GetHashCode(this);
+		}
 
-        public void DettachFrom(Client client)
-        {
-            ThrowOnNullArgument(client, nameof(client));
+		public override bool Equals(object obj)
+		{
+			return obj is Toggle other 
+				&& Equals(other);
+		}
 
-            if (_whitelist.Contains(client))
-            {
-                _whitelist.Remove(client);
-            }
-            else if (_customValues.ContainsKey(client))
-            {
-                RemoveCustomValueFor(client);
-            }
-            else
-            {
-                throw new ArgumentException($"Client application \"{client.Id}:{client.Version}\" " +
-                                            $"does not have permission to access toggle \"{Name}\"");
-            }
+		public bool Equals(Toggle other)
+		{
+			return !other.IsNull()
+				&& string.Equals(Name, other.Name, StringComparison.CurrentCultureIgnoreCase);
+		}
 
-        }
+		bool IEqualityComparer<Toggle>.Equals(Toggle x, Toggle y)
+		{
+			return Equals(x, y);
+		}
 
-        public override int GetHashCode()
-        {
-            return GetHashCode(this);
-        }
+		public static bool Equals(Toggle x, Toggle y)
+		{
+			return !x.IsNull() && x.Equals(y);
+		}
 
-        public override bool Equals(object obj)
-        {
-            var instance = obj as Toggle;
-            return instance != null && Equals(instance);
-        }
+		public int GetHashCode(Toggle obj)
+		{
+			return obj?.Name == null ? base.GetHashCode() : obj.Name.GetHashCode();
+		}
 
-        public bool Equals(Toggle other)
-        {
-            return !other.IsNull()
-                && Name == other.Name;
-        }
+		public override string ToString()
+		{
+			return $"{Name}:{DefaultValue}";
+		}
 
-        bool IEqualityComparer<Toggle>.Equals(Toggle x, Toggle y)
-        {
-            return Equals(x, y);
-        }
+		private bool WhitelistExists()
+		{
+			return _whitelist.Count > 0;
+		}
 
-        public static bool Equals(Toggle x, Toggle y)
-        {
-            return !x.IsNull() && x.Equals(y);
-        }
+		private bool IsInWhitelist(Client client)
+		{
+			return _whitelist.Contains(client);
+		}
 
-
-        public int GetHashCode(Toggle obj)
-        {
-            return obj?.Name == null ? base.GetHashCode() : obj.Name.GetHashCode();
-        }
-        public override string ToString()
-        {
-            return $"{Name}:{DefaultValue}";
-        }
-
-    }
+		private bool IsInCustomValues(Client client)
+		{
+			return _customValues.ContainsKey(client);
+		}
+	}
 }
