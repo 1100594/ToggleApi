@@ -27,7 +27,6 @@
    <Folder Include="Commands\" />
    <Folder Include="Controller\" />
    <Folder Include="Repository\" />
-   <Folder Include="Utilities\" />
    <Folder Include="Queries\" />
  </ItemGroup>
 

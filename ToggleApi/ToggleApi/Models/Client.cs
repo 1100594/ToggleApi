@@ -22,7 +22,7 @@ namespace ToggleApi.Models
 
         public override bool Equals(object obj)
         {
-            return obj is Client && Equals(obj);
+            return obj is Client other && Equals(other);
         }
 
         public bool Equals(Client other)
@@ -31,6 +31,7 @@ namespace ToggleApi.Models
                 && Id == other.Id
                 && IsCompatibleVersion(other.Version);
         }
+
         bool IEqualityComparer<Client>.Equals(Client x, Client y)
         {
             return Equals(x, y);
