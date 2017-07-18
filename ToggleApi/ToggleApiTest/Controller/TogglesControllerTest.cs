@@ -263,13 +263,15 @@ public class TogglesControllerTest
 
         _commandHandler
             .Setup(handler => handler
-            .Execute(It.Is<UpdateToggleValue>(c => c.ToggleName.Equals(toggleName) && c.ToggleValue.Equals(toggleValue))))
+            .Execute(It.Is<UpdateToggleValue>(c => c.ToggleName.Equals(toggleName) 
+            && c.ToggleValue.Equals(toggleValue))))
             .Verifiable();
 
         IActionResult result = _controller.Put(toggleName, toggleValue);
         _commandHandler
             .Verify(handler => handler
-            .Execute(It.Is<UpdateToggleValue>(c => c.ToggleName.Equals(toggleName) && c.ToggleValue.Equals(toggleValue))));
+            .Execute(It.Is<UpdateToggleValue>(c => c.ToggleName.Equals(toggleName)
+            && c.ToggleValue.Equals(toggleValue))));
 
         Assert.IsType<OkResult>(result);
 
@@ -287,7 +289,8 @@ public class TogglesControllerTest
 
         _commandHandler
             .Setup(handler => handler
-            .Execute(It.Is<UpdateToggleValue>(c => c.ToggleName.Equals(toggleName) && c.ToggleValue.Equals(toggleValue))))
+            .Execute(It.Is<UpdateToggleValue>(c => c.ToggleName.Equals(toggleName) 
+            && c.ToggleValue.Equals(toggleValue))))
             .Throws<NotSupportedException>();
 
         var result = _controller.Put(toggleName, toggleValue);
