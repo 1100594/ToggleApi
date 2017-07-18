@@ -17,6 +17,7 @@ namespace ToggleApi.Controllers
         private readonly IToggleClientParser _toggleClientParser;
         private readonly IQueryHandler _queryHandler;
         private readonly ILogger<TogglesController> _log;
+
         public TogglesController(IToggleClientParser toggleClientParser, IQueryHandler queryHandler,
             ICommandHandler commandHandler, ILogger<TogglesController> log)
         {
@@ -29,7 +30,6 @@ namespace ToggleApi.Controllers
             _commandHandler = commandHandler;
             _log = log;
         }
-
 
         /// <summary>
         /// Gets a list of toggles for a specific service/application (clients).
@@ -70,9 +70,6 @@ namespace ToggleApi.Controllers
                 return this.InternalServerError();
             }
         }
-
-
-
 
         /// <summary>
         /// Gets a specific toggle by its name
@@ -221,8 +218,6 @@ namespace ToggleApi.Controllers
                 return this.InternalServerError();
             }
         }
-
-
         /// <summary>
         /// Updates toggle to include a new client in its whitelist
         /// </summary>
