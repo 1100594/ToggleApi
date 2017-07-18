@@ -1,13 +1,14 @@
 ﻿namespace ToggleApi.Commands
 {
-    public interface ICommandHandler: ICommandHandler<CreateToggle>
+    public interface ICommandHandler
+		: ICommandHandler<CreateToggle>
         , ICommandHandler<UpdateToggleValue>
-        , ICommandHandler<UpdateWhitelist>
-        , ICommandHandler<UpdateToggleCustomValue>
-        , ICommandHandler<AddToWhitelist>
-        , ICommandHandler<AddToCustomValues>
-        , ICommandHandler<DeleteClientToggle>
         , ICommandHandler<DeleteToggle>
+        , ICommandHandler<AddToWhitelist>
+        , ICommandHandler<UpdateWhitelist>
+        , ICommandHandler<AddToCustomValues>
+        , ICommandHandler<UpdateToggleCustomValue>
+        , ICommandHandler<DeleteClientToggle>
     {
         
     }
