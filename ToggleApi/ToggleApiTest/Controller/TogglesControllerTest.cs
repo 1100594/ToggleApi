@@ -190,6 +190,51 @@ public class TogglesControllerTest
 
     [Fact]
     [Trait("UnitTest", "TogglesController")]
+    public void PostNewGlobalToggle()
+    {
+        const string toggleName = "toggle2";
+        const bool toggleValue = true;
+
+        _commandHandler
+            .Setup(handler => handler.Execute(It.Is<CreateToggle>(c => c.ToggleName.Equals(toggleName)
+                                                                       && c.ToggleValue.Equals(toggleValue))))
+            .Verifiable();
+
+        var result = _controller.Post(toggleName, toggleValue);
+
+        _commandHandler.Verify(handler => handler.Execute(It.Is<CreateToggle>(c =>
+            c.ToggleName.Equals(toggleName) && c.ToggleValue.Equals(toggleValue))));
+
+        Assert.IsType<OkResult>(result);
+
+        var okResult = result as OkResult;
+        Assert.NotNull(okResult);
+        Assert.Equal(200, okResult.StatusCode);
+    }
+
+    [Fact]
+    [Trait("UnitTest", "TogglesController")]
+    public void PostNewGlobalToggleInternalError()
+    {
+        const string toggleName = "toggle2";
+        const bool toggleValue = true;
+
+        _commandHandler
+            .Setup(handler => handler.Execute(It.Is<CreateToggle>(c => c.ToggleName.Equals(toggleName)
+                                                                       && c.ToggleValue.Equals(toggleValue))))
+            .Throws<Exception>();
+
+        var result = _controller.Post(toggleName, toggleValue);
+
+        Assert.IsType<ObjectResult>(result);
+
+        var internalErrorResult = result as ObjectResult;
+        Assert.NotNull(internalErrorResult);
+        Assert.Equal(500, internalErrorResult.StatusCode);
+    }
+
+    [Fact]
+    [Trait("UnitTest", "TogglesController")]
     public void PostNewToggle()
     {
         const string toggleName = "toggle2";

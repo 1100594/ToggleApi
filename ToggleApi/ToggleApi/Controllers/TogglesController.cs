@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ToggleApi.Commands;
@@ -99,6 +100,38 @@ namespace ToggleApi.Controllers
                 }
 
                 return Ok(toggle);
+            }
+            catch (Exception e)
+            {
+                _log.LogError($"{Resources.InternalErrorMessage}:{e.Message}");
+                return this.InternalServerError();
+            }
+        }
+        /// <summary>
+        /// Creates a new global toggle
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// <param name="toggleName">Name of the toggle</param>
+        /// <param name="toggleValue">Value of the toggle</param>
+        /// <returns></returns>
+        /// <response code="200">If the toggle was created</response>
+        /// <response code="400">If the request is not valid</response>
+        /// <response code="500">Internal error</response>
+        [HttpPost("{toggleName}={toggleValue}")]
+        public IActionResult Post(string toggleName, bool toggleValue)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var createCmd = new CreateToggle(toggleName, toggleValue);
+                _commandHandler.Execute(createCmd);
+
+                return Ok();
             }
             catch (Exception e)
             {
