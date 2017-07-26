@@ -37,3 +37,6 @@ Frameworks - Packages - Patterns - Features used
 
 <h2>Microsoft Azure Deployment</h2>
 See how to deploy an ASP.NET Core web app on Microsoft Azure <a href="https://docs.microsoft.com/en-us/aspnet/core/tutorials/publish-to-azure-webapp-using-vs" target="_blank">here</a>.
+
+<h2>Fix of issue related with routes with similar query string</h2>
+Please see more information about the issue in here <a href="https://github.com/aspnet/Mvc/issues/4880">Routes with similar query string</a>

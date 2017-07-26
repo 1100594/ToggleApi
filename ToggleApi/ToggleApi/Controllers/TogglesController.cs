@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
-using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ToggleApi.Commands;
+using ToggleApi.Controllers.Attributes;
 using ToggleApi.Properties;
 using ToggleApi.Queries;
 using ToggleApi.Utilities;
@@ -11,7 +11,7 @@ using static ToggleApi.Utilities.Utils;
 
 namespace ToggleApi.Controllers
 {
-    [Route("api/toggles")]
+    [Route("[controller]/[action]")]
     public class TogglesController : Controller
     {
         private readonly ICommandHandler _commandHandler;
@@ -119,6 +119,7 @@ namespace ToggleApi.Controllers
         /// <response code="400">If the request is not valid</response>
         /// <response code="500">Internal error</response>
         [HttpPost("{toggleName}={toggleValue}")]
+        [QueryStringConstraint]
         public IActionResult Post(string toggleName, bool toggleValue)
         {
             try
@@ -166,6 +167,7 @@ namespace ToggleApi.Controllers
         /// <response code="400">If the request is not valid</response>
         /// <response code="405">Operation not allowed</response>
         /// <response code="500">Internal error</response>
+    
         [HttpPost("{toggleName}={toggleValue}&{expression}")]
         public IActionResult Post(string toggleName, bool toggleValue, string expression)
         {
