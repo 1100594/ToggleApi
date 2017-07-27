@@ -11,7 +11,7 @@ using static ToggleApi.Utilities.Utils;
 
 namespace ToggleApi.Controllers
 {
-    [Route("[controller]/[action]")]
+    [Route("api/toggles")]
     public class TogglesController : Controller
     {
         private readonly ICommandHandler _commandHandler;
