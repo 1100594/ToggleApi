@@ -47,7 +47,7 @@ namespace ToggleApi.Models
             if (obj.IsNull())
                 return base.GetHashCode();
             //Fix try get value uses both gethashcode and equals
-            return $"{obj.Id}".GetHashCode();
+            return obj.Id.GetHashCode();
         }
 
         public static bool Equals(Client x, Client y)
